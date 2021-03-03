@@ -31,8 +31,12 @@ def pretty_db():
     # for row in conn.execute('select title, director from movies where director="None"'):
     #     print('After N/A directors updating to None:', row)
 
+    cur = conn.cursor()
+    cur.execute('UPDATE movies SET writers = \'[{"id": "\' || writer || \'"}]\'  where writer != ""')
+    conn.commit()
     conn.close()
 
+    print('DB is pretty')
 
 def get_json_from_db(query):
     conn = sqlite3.connect('db.sqlite')
@@ -45,6 +49,12 @@ def get_json_from_db(query):
     conn.close()
 
     return [dict(ix) for ix in rows]
+    # result = []
+    # for r in rows:
+    #     r = dict(r)
+    #     r['writers'] = list( r['writers'])
+    #     result.append(r)
+    # return result
 
 
 
@@ -195,14 +205,22 @@ def store_record(elastic_object, index_name, record):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.ERROR)
     pretty_db()
-    # es_obj = connect_elasticsearch()
+    es_obj = connect_elasticsearch()
     a = create_index(es_obj)
 
 
-    # actors_table_data = get_json_from_db('select id, name from actors')
-    # for row in actors_table_data:
-    #     out = store_record(es_obj, 'actors', row)
+    pretty_json = get_json_from_db('select id, imdb_rating, genre, title, plot description,'
+                                   ' director from movies limit 3')
+    for movie_data  in pretty_json:
+        actor_query = f'select a.id, a.name from movie_actors ma join actors a on ma.actor_id = a.id where movie_id=\'{movie_data ["id"]}\''
+        actors_data = get_json_from_db(actor_query)
 
-    # writers_table_data = get_json_from_db('select id, name from writers')
-    # for row in writers_table_data:
-    #     out = store_record(es_obj, 'writers', row)
+        actors_names = ''
+        for actor in actors_data:
+            actors_names += actor['name']+', '
+
+        movie_data['actors_names'] = actors_names
+        movie_data['actors'] = actors_data
+        movie_data['imdb_rating'] = float(movie_data['imdb_rating'] )
+        print(movie_data , end='\n\n')
+        out = store_record(es_obj, 'movies', movie_data)
