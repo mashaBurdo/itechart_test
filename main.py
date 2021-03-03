@@ -1,5 +1,51 @@
+import sqlite3
+import json
 import logging
 from elasticsearch import Elasticsearch
+
+
+def pretty_db():
+    conn = sqlite3.connect('db.sqlite')
+    # for row in conn.execute('select id, name from writers where name="N/A" '):
+    #     print('Before N/A writers deleting:', row)
+    # for row in conn.execute('select id, name from actors where name="N/A" '):
+    #     print('Before N/A actors deleting:', row)
+
+    cur = conn.cursor()
+    cur.execute("delete from actors where name='N/A'")
+    cur.execute("delete from writers where name='N/A'")
+    conn.commit()
+
+    # for row in conn.execute('select id, name from writers where name="N/A" '):
+    #     print('After N/A writers deleting:', row)
+    # for row in conn.execute('select id, name from actors where name="N/A" '):
+    #     print('After N/A actors deleting:', row)
+    #
+    # for row in conn.execute('select title, director from movies where director="N/A"'):
+    #     print('Before N/A directors updating:', row)
+
+    cur = conn.cursor()
+    cur.execute("update movies set director='None' where director='N/A'")
+    conn.commit()
+
+    # for row in conn.execute('select title, director from movies where director="None"'):
+    #     print('After N/A directors updating to None:', row)
+
+    conn.close()
+
+
+def get_json_from_db(query):
+    conn = sqlite3.connect('db.sqlite')
+    conn.row_factory = sqlite3.Row
+    db = conn.cursor()
+
+    rows = db.execute(query).fetchall()
+
+    conn.commit()
+    conn.close()
+
+    return [dict(ix) for ix in rows]
+
 
 
 def connect_elasticsearch():
@@ -137,7 +183,7 @@ def store_record(elastic_object, index_name, record):
     is_stored = True
     try:
         outcome = elastic_object.index(index=index_name, body=record)
-        print(outcome)
+        # print(outcome)
     except Exception as ex:
         print('Error in indexing data')
         print(str(ex))
@@ -148,9 +194,15 @@ def store_record(elastic_object, index_name, record):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.ERROR)
-    es_obj = connect_elasticsearch()
+    pretty_db()
+    # es_obj = connect_elasticsearch()
     a = create_index(es_obj)
-    print('Completed first part: ', a)
-    result = {}
-    out = store_record(es_obj, 'movies', result)
-    print('Data indexed successfully')
+
+
+    # actors_table_data = get_json_from_db('select id, name from actors')
+    # for row in actors_table_data:
+    #     out = store_record(es_obj, 'actors', row)
+
+    # writers_table_data = get_json_from_db('select id, name from writers')
+    # for row in writers_table_data:
+    #     out = store_record(es_obj, 'writers', row)
