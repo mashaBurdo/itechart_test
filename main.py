@@ -222,9 +222,9 @@ def store_record(elastic_object, index_name, record):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.ERROR)
-    # pretty_db()
+    pretty_db()
     es_obj = connect_elasticsearch()
-    # a = create_index(es_obj)
+    a = create_index(es_obj)
 
     pretty_json = get_json_from_db('select id, imdb_rating, genre, title, plot description,'
                                    ' director from movies')
