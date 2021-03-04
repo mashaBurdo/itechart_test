@@ -157,7 +157,8 @@ def make_db_pretty():
     cur.execute("delete from actors where name='N/A'")
     cur.execute("delete from writers where name='N/A'")
     cur.execute("update movies set director = null where director='N/A'")
-    cur.execute("update movies set imdb_rating='0' where imdb_rating='N/A'")
+    cur.execute("update movies set plot = null where plot='N/A'")
+    cur.execute("update movies set imdb_rating = '0' where imdb_rating='N/A'")
     cur.execute('UPDATE movies SET writers = \'[{"id": "\' || writer || \'"}]\'  where writer != ""')
     cur.execute('CREATE TABLE IF NOT EXISTS movie_writers (movie_id text NOT NULL, writer_id text NOT NULL)')
     conn.commit()
@@ -194,9 +195,10 @@ def store_movies(es_obj):
         writer_query = f'select w.id, w.name from movie_writers mw join writers w on mw.writer_id = w.id where movie_id=\'{movie_data["id"]}\''
         writers_data = get_data_from_db(writer_query)
 
-        writers_names = ''
+        writers_names = []
         for writer in writers_data:
-            writers_names += writer['name'] + ', '
+            if writer['name'] not in writers_names:
+                writers_names.append(writer['name'])
 
         movie_data['actors_names'] = actors_names
         movie_data['actors'] = actors_data
