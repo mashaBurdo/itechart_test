@@ -185,7 +185,9 @@ def store_movies(es_obj):
     movies_data = get_data_from_db('select id, imdb_rating, genre, title, plot description,'
                                    ' director from movies')
     for movie_data  in movies_data:
+
         actor_query = f'select a.id, a.name from movie_actors ma join actors a on ma.actor_id = a.id where movie_id=\'{movie_data ["id"]}\''
+
         actors_data = get_data_from_db(actor_query)
 
         actors_names = ''
@@ -199,12 +201,17 @@ def store_movies(es_obj):
         for writer in writers_data:
             if writer['name'] not in writers_names:
                 writers_names.append(writer['name'])
+            else:
+                writers_data.remove(writer)
 
         movie_data['actors_names'] = actors_names
         movie_data['actors'] = actors_data
         movie_data['writers_names'] = writers_names
         movie_data['writers'] = writers_data
         movie_data['imdb_rating'] = float(movie_data['imdb_rating'] )
+        movie_data['genre'] = movie_data['genre'].split(', ')
+        if movie_data['director']:
+            movie_data['director'] = movie_data['director'].split(', ')
 
         store_record(es_obj, 'movies', movie_data)
 
