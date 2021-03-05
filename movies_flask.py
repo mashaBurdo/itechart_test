@@ -59,42 +59,49 @@ def movies_list() -> str:
         }
       }
     }
-    if not request.args.get('limit').isdigit():
+    limit = request.args.get('limit')
+    page = request.args.get('page')
+    search = request.args.get('search')
+    sort = request.args.get('sort')
+    sort_order = request.args.get('sort_order')
+
+    if not limit.isdigit():
         abort(422)
         return
-    elif int(request.args.get('limit')) < 0:
+    elif int(limit) < 0:
         abort(422)
         return
-    elif not request.args.get('page').isdigit():
+    elif not page.isdigit():
         abort(422)
         return
-    elif int(request.args.get('page')) <= 0:
+    elif int(page) <= 0:
         abort(422)
         return
-    elif request.args.get('sort_order') not in ('asc', 'desc'):
+    elif sort_order not in ('asc', 'desc'):
         abort(422)
         return
-    elif request.args.get('sort') not in ('id', 'title', 'imdb_rating'):
+    elif sort not in ('id', 'title', 'imdb_rating'):
         abort(422)
         return
 
-    if request.args.get('limit') and request.args.get('page'):
-        limit = request.args.get('limit')
-        page = request.args.get('page')
+    if limit and page:
         search_query['size'] = limit
         search_query['from'] = int(limit) * (int(page) - 1)
 
-    if request.args.get('search'):
-        search = request.args.get('search')
+    if search:
         search_query['query']['multi_match']['query'] = search
-    # print(limit, type(limit), page, type(page), sort, sort_order, search)
-    if request.args.get('page'):
-        page = request.args.get('page')
 
-    if request.args.get('sort') and request.args.get('sort_order'):
-        sort = request.args.get('sort')
-        sort_order = request.args.get('sort_order')
+    if sort and sort_order:
         search_query['sort'] = {sort: sort_order}
+
+
+
+
+
+
+
+
+
 
     search_output = el_search(es, json.dumps(search_query))
 
