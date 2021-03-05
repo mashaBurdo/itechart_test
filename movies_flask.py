@@ -65,8 +65,8 @@ def movies_list() -> str:
     sort = request.args.get('sort')
     sort_order = request.args.get('sort_order')
 
-    if not limit:
-        return jsonify('')
+    if not limit and not search or search == '':
+        search_query['query'] ={"match_all": {}}
     elif not limit.isdigit():
         abort(422)
         return
@@ -93,7 +93,8 @@ def movies_list() -> str:
 
     if search:
         search_query['query']['multi_match']['query'] = search
-        print("SSS", type(search))
+        print("SSS", type(search), search)
+    print("SSS", type(search), search)
 
     if sort and sort_order:
         search_query['sort'] = {sort: sort_order}
@@ -102,7 +103,7 @@ def movies_list() -> str:
 
 
     search_output = el_search(es, json.dumps(search_query))
-    print()
+    # print()
 
     result = []
     if search_output:
