@@ -23,7 +23,6 @@ def movie_details(movie_id: str) -> str:
     }
     search_query['query']['match']['id'] = movie_id
     search_output = el_search(es, json.dumps(search_query))
-    # print(search_output, type(search_output))
 
     if search_output:
         result = [d['_source'] for d in search_output['hits']['hits']][0]
@@ -60,11 +59,6 @@ def movies_list() -> str:
         }
       }
     }
-    # limit = 50
-    # page = 1
-    # sort_order = 'asc'
-    # sort = 'id'
-    # print(type(request.args.get('search') ))
     if not request.args.get('limit').isdigit():
         abort(422)
         return
@@ -74,7 +68,7 @@ def movies_list() -> str:
     elif not request.args.get('page').isdigit():
         abort(422)
         return
-    elif int(request.args.get('page'))<=0:
+    elif int(request.args.get('page')) <= 0:
         abort(422)
         return
     elif request.args.get('sort_order') not in ('asc', 'desc'):
@@ -83,8 +77,6 @@ def movies_list() -> str:
     elif request.args.get('sort') not in ('id', 'title', 'imdb_rating'):
         abort(422)
         return
-
-
 
     if request.args.get('limit') and request.args.get('page'):
         limit = request.args.get('limit')
@@ -103,24 +95,15 @@ def movies_list() -> str:
         sort = request.args.get('sort')
         sort_order = request.args.get('sort_order')
         search_query['sort'] = {sort: sort_order}
-    # if request.args.get('sort_order'):
-    #     sort_order = request.args.get('sort_order')
-
-
-    # print(search_query)
 
     search_output = el_search(es, json.dumps(search_query))
-    # print(search_output, type(search_output))
-    # return search_output
 
     result = []
     if search_output:
         films_data = [d['_source'] for d in search_output['hits']['hits']]
         for film_data in films_data:
             film_data_cleaned = {'id': film_data['id'], 'title': film_data['title'], 'imdb_rating': film_data['imdb_rating']}
-            # print(type(film_data_cleaned))
             result.append(film_data_cleaned.copy())
-        # print(result)
         return jsonify(result)
     else:
         return
