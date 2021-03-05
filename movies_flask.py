@@ -65,7 +65,9 @@ def movies_list() -> str:
     sort = request.args.get('sort')
     sort_order = request.args.get('sort_order')
 
-    if not limit.isdigit():
+    if not limit:
+        return jsonify('')
+    elif not limit.isdigit():
         abort(422)
         return
     elif int(limit) < 0:
@@ -84,26 +86,23 @@ def movies_list() -> str:
         abort(422)
         return
 
+
     if limit and page:
         search_query['size'] = limit
         search_query['from'] = int(limit) * (int(page) - 1)
 
     if search:
         search_query['query']['multi_match']['query'] = search
+        print("SSS", type(search))
 
     if sort and sort_order:
         search_query['sort'] = {sort: sort_order}
 
-
-
-
-
-
-
-
+    print(search_query)
 
 
     search_output = el_search(es, json.dumps(search_query))
+    print()
 
     result = []
     if search_output:
