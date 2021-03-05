@@ -60,11 +60,32 @@ def movies_list() -> str:
         }
       }
     }
-    limit = 50
-    page = 1
-    sort_order = 'asc'
-    sort = 'id'
-    print(type(request.args.get('search') ))
+    # limit = 50
+    # page = 1
+    # sort_order = 'asc'
+    # sort = 'id'
+    # print(type(request.args.get('search') ))
+    if not request.args.get('limit').isdigit():
+        abort(422)
+        return
+    elif int(request.args.get('limit')) < 0:
+        abort(422)
+        return
+    elif not request.args.get('page').isdigit():
+        abort(422)
+        return
+    elif int(request.args.get('page'))<=0:
+        abort(422)
+        return
+    elif request.args.get('sort_order') not in ('asc', 'desc'):
+        abort(422)
+        return
+    elif request.args.get('sort') not in ('id', 'title', 'imdb_rating'):
+        abort(422)
+        return
+
+
+
     if request.args.get('limit') and request.args.get('page'):
         limit = request.args.get('limit')
         page = request.args.get('page')
