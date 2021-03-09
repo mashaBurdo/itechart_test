@@ -11,6 +11,11 @@ def el_search(es_object, search, index_name='movies'):
     return res
 
 
+@app.route('/')
+def hello_world():
+    return 'Moe Flask приложение в контейнере Docker.'
+
+
 @app.route('/api/movies/<movie_id>', methods=['GET'])
 def movie_details(movie_id: str) -> str:
     es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
@@ -117,4 +122,4 @@ def movies_list() -> str:
 
 
 if __name__ == '__main__':
-    app.run(port=8000)
+    app.run(host="0.0.0.0")
