@@ -4,4 +4,4 @@ docker run -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasti
  docker run -p 8000:8000 movies_flask_app:latest
 
 docker-compose -f test.yml build --no-cache
-docker-compose -f test.yml up -d
+docker-compose -f test.yml up

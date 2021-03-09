@@ -1,7 +1,7 @@
 import sqlite3
 from elasticsearch import Elasticsearch
 
-
+print('HELLO ELASTIC')
 def create_index(es_object, index_name='movies'):
     created = False
     settings = {
@@ -218,6 +218,6 @@ def store_movies(es_obj):
 
 if __name__ == '__main__':
     make_db_pretty()
-    es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+    es = Elasticsearch([{'host': 'elasticsearch', 'port': 9200}])
     create_index(es)
     store_movies(es)
