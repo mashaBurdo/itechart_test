@@ -1,6 +1,7 @@
 import json
 from flask import Flask, jsonify, request,  abort
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestsHttpConnection
+import os
 
 app =\
     Flask('movies_service')
@@ -18,7 +19,13 @@ def hello_world():
 
 @app.route('/api/movies/<movie_id>', methods=['GET'])
 def movie_details(movie_id: str) -> str:
-    es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+    es = Elasticsearch(hosts=[{"host": "host.docker.internal", "port": 9200}], connection_class=RequestsHttpConnection,
+                       max_retries=30,
+                       retry_on_timeout=True, request_timeout=30)
+    # es_host = os.environ['DOCKER_MACHINE_IP']
+    # print('Elastic host is {}'.format(es_host))
+    # es = Elasticsearch([es_host])
+    #es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
     search_query = {
         "query": {
             "match": {
@@ -42,7 +49,13 @@ def movie_details(movie_id: str) -> str:
 
 @app.route('/api/movies', methods=['GET'], strict_slashes=False)
 def movies_list() -> str:
-    es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+    es = Elasticsearch(hosts=[{"host": "host.docker.internal", "port": 9200}], connection_class=RequestsHttpConnection,
+                       max_retries=30,
+                       retry_on_timeout=True, request_timeout=30)
+    # es_host = os.environ['DOCKER_MACHINE_IP']
+    # print('Elastic host is {}'.format(es_host))
+    # es = Elasticsearch([es_host])
+    # es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
     search_query = {
       "from" : 0,
       "size": 50,

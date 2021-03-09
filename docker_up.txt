@@ -1,1 +1,7 @@
 docker run -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+
+ docker build -t movies_flask_app:latest .
+ docker run -p 8000:8000 movies_flask_app:latest
+
+docker-compose -f test.yml build --no-cache
+docker-compose -f test.yml up -d
