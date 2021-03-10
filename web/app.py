@@ -17,7 +17,7 @@ def el_search(es_object, search, index_name="movies"):
 
 @app.route("/")
 def hello_world():
-    return "Moe Flask приложение в контейнере Docker&&&"
+    return "Moe Flask приложение в контейнере Docker!!!!!!"
 
 
 @app.route("/api/movies/<movie_id>", methods=["GET"])

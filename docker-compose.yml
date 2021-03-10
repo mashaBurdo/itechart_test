@@ -14,7 +14,7 @@ services:
   indexer:
     build: ./indexer
     volumes:
-      - .:/app/indexer
+      - ./indexer:/app
     depends_on:
       - elasticsearch
     networks:
@@ -24,7 +24,7 @@ services:
   web:
     build: ./web
     volumes:
-      - .:/app/web
+      - ./web:/app
     restart: always
     ports:
       - "8000:8000"

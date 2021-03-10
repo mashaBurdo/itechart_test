@@ -3,8 +3,7 @@ from elasticsearch import Elasticsearch
 import time
 from elasticsearch.exceptions import ConnectionError
 
-print("HELLO ETL")
-print("HELLO ELASTIC")
+print("HELLO EEEEELASTIC")
 
 
 def create_index(es_object, index_name="movies"):
