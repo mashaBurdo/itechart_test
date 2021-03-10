@@ -24,9 +24,11 @@ services:
     restart: always
     ports:
       - "8000:8000"
-    environment:
-      - ELASTICSEARCH_NODES=http://elasticsearch:9200
     depends_on:
       - elasticsearch
+    networks:
+      - esnet
+    container_name: web
+
 networks:
   esnet:

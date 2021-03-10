@@ -1,6 +1,8 @@
 import json
 from flask import Flask, jsonify, request,  abort
-from elasticsearch import Elasticsearch, RequestsHttpConnection
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import ConnectionError
+import time
 import os
 
 app =\
@@ -19,7 +21,7 @@ def hello_world():
 
 @app.route('/api/movies/<movie_id>', methods=['GET'])
 def movie_details(movie_id: str) -> str:
-    es = Elasticsearch([{'host': 'elasticsearch', 'port': 9200}])
+    es = Elasticsearch(hosts=[{"host": 'elasticsearch'}], retry_on_timeout=True)
     search_query = {
         "query": {
             "match": {
@@ -43,8 +45,8 @@ def movie_details(movie_id: str) -> str:
 
 @app.route('/api/movies', methods=['GET'], strict_slashes=False)
 def movies_list() -> str:
-    print('HELLO API MOVIES')
-    es = Elasticsearch([{'host': 'elasticsearch', 'port': 9200}])
+    # print('HELLO API MOVIES')
+    es = Elasticsearch(hosts=[{"host": 'elasticsearch'}], retry_on_timeout=True)
     search_query = {
       "from" : 0,
       "size": 50,

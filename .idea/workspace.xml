@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="652b8f01-e134-464e-b0f4-f08f7b38cc65" name="Default Changelist" comment="docker-compose is used to create index successfully">
-      <change afterPath="$PROJECT_DIR$/elasticsearch/ETL_mechanism.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/elasticsearch/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ETL_mechanism.py" beforeDir="false" afterPath="$PROJECT_DIR$/ETL_mechanism.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker_up.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker_up.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/elasticsearch/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/elasticsearch/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/indexer/ETL_mechanism.py" beforeDir="false" afterPath="$PROJECT_DIR$/indexer/ETL_mechanism.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/indexer/db.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/indexer/db.sqlite" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/test.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/web/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/web/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -122,7 +116,7 @@
       <workItem from="1614835330206" duration="21862000" />
       <workItem from="1614921000245" duration="14137000" />
       <workItem from="1615266603371" duration="16542000" />
-      <workItem from="1615354427628" duration="3509000" />
+      <workItem from="1615354427628" duration="6599000" />
     </task>
     <task id="LOCAL-00001" summary="second day">
       <created>1614678733334</created>
