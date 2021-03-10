@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="652b8f01-e134-464e-b0f4-f08f7b38cc65" name="Default Changelist" comment="docker-compose is used to create index successfully">
+      <change afterPath="$PROJECT_DIR$/elasticsearch/ETL_mechanism.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/elasticsearch/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ETL_mechanism.py" beforeDir="false" afterPath="$PROJECT_DIR$/ETL_mechanism.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker_up.txt" beforeDir="false" afterPath="$PROJECT_DIR$/docker_up.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/elasticsearch/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/elasticsearch/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/indexer/ETL_mechanism.py" beforeDir="false" afterPath="$PROJECT_DIR$/indexer/ETL_mechanism.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/indexer/db.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/indexer/db.sqlite" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/web/app.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="ProjectId" id="1pBlC5JrMZBFswnVjs1z3UgAt34" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="foldersAlwaysOnTop" value="false" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="mysql&#10;sqlite" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/elasticsearch" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.appearance" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/elasticsearch" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/indexer" />
+      <recent name="$PROJECT_DIR$/elasticsearch" />
+      <recent name="$PROJECT_DIR$/web" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.ETL_mechanism">
+    <configuration name="ETL_mechanism" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/indexer/ETL_mechanism.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="elast_s" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/elast_s.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.ETL_mechanism" />
+        <item itemvalue="Python.elast_s" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="652b8f01-e134-464e-b0f4-f08f7b38cc65" name="Default Changelist" comment="" />
+      <created>1614664234429</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1614664234429</updated>
+      <workItem from="1614672328521" duration="4329000" />
+      <workItem from="1614752743292" duration="145000" />
+      <workItem from="1614752909621" duration="2667000" />
+      <workItem from="1614757140479" duration="5957000" />
+      <workItem from="1614763106871" duration="10246000" />
+      <workItem from="1614835330206" duration="21862000" />
+      <workItem from="1614921000245" duration="14137000" />
+      <workItem from="1615266603371" duration="16542000" />
+      <workItem from="1615354427628" duration="3509000" />
+    </task>
+    <task id="LOCAL-00001" summary="second day">
+      <created>1614678733334</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1614678733334</updated>
+    </task>
+    <task id="LOCAL-00002" summary="everything except writers transfered to ES">
+      <created>1614764187355</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1614764187355</updated>
+    </task>
+    <task id="LOCAL-00003" summary="before first attempt to test">
+      <created>1614773699664</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1614773699664</updated>
+    </task>
+    <task id="LOCAL-00004" summary="code is refactored, 11/15 tests are passed">
+      <created>1614841786396</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1614841786396</updated>
+    </task>
+    <task id="LOCAL-00005" summary="ETL mechanism completed, all the tests are passed">
+      <created>1614845157326</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1614845157326</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Movies tests 13/22">
+      <created>1614932984071</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1614932984071</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Movies tests 16/22">
+      <created>1614933725659</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1614933725659</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Movies tests 16/22">
+      <created>1614934454024</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1614934454024</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Movies tests 16/22 looks well">
+      <created>1614934789226</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1614934789226</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Movies tests 18/22">
+      <created>1614935775771</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1614935775771</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Dockerfile for app.py works">
+      <created>1615278387722</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1615278387722</updated>
+    </task>
+    <task id="LOCAL-00012" summary="docker-compose is used to create index successfully">
+      <created>1615357827782</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1615357827782</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="second day" />
+    <MESSAGE value="everything except writers transfered to ES" />
+    <MESSAGE value="before first attempt to test" />
+    <MESSAGE value="code is refactored, 11/15 tests are passed" />
+    <MESSAGE value="ETL mechanism completed, all the tests are passed" />
+    <MESSAGE value="Movies tests 13/22" />
+    <MESSAGE value="Movies tests 16/22" />
+    <MESSAGE value="Movies tests 16/22 looks well" />
+    <MESSAGE value="Movies tests 18/22" />
+    <MESSAGE value="Dockerfile for app.py works" />
+    <MESSAGE value="docker-compose is used to create index successfully" />
+    <option name="LAST_COMMIT_MESSAGE" value="docker-compose is used to create index successfully" />
+  </component>
+</project>

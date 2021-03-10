@@ -4,6 +4,7 @@ import time
 from elasticsearch.exceptions import ConnectionError
 
 print('HELLO ETL')
+print('HELLO ELASTIC')
 def create_index(es_object, index_name='movies'):
     created = False
     settings = {
