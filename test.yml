@@ -2,6 +2,7 @@ version: "3.3"
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.7.0
+    build: ./elasticsearch
     ports:
       - "9200:9200"
     networks:
@@ -9,6 +10,14 @@ services:
     environment:
       - bootstrap.memory_lock=false
       - discovery.type=single-node
+
+  indexer:
+    build: indexer/
+    depends_on:
+      - elasticsearch
+    networks:
+      - esnet
+    container_name: indexer
 
   web:
     build: ./web

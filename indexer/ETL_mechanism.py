@@ -1,7 +1,9 @@
 import sqlite3
 from elasticsearch import Elasticsearch
+import time
+from elasticsearch.exceptions import ConnectionError
 
-
+print('HELLO ETL')
 def create_index(es_object, index_name='movies'):
     created = False
     settings = {
@@ -218,6 +220,12 @@ def store_movies(es_obj):
 
 if __name__ == '__main__':
     make_db_pretty()
-    es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+    es = Elasticsearch(hosts=[{"host":'elasticsearch'}], retry_on_timeout = True)
+    for _ in range(100):
+        try:
+            # make sure the cluster is available
+            es.cluster.health(wait_for_status='yellow')
+        except ConnectionError:
+            time.sleep(2)
     create_index(es)
     store_movies(es)
