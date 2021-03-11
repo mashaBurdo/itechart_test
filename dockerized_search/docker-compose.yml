@@ -2,7 +2,7 @@ version: "3.3"
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.7.0
-    build: elasticsearch/
+    build: elasticsearch
     ports:
       - "9200:9200"
     networks:
@@ -12,7 +12,7 @@ services:
       - discovery.type=single-node
 
   indexer:
-    build: ./indexer
+    build: indexer
     volumes:
       - ./indexer:/app
     depends_on:
@@ -22,7 +22,7 @@ services:
     container_name: indexer
 
   web:
-    build: ./web
+    build: web
     volumes:
       - ./web:/app
     restart: always

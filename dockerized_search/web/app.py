@@ -17,7 +17,7 @@ def el_search(es_object, search, index_name="movies"):
 
 @app.route("/")
 def hello_world():
-    return "Moe Flask приложение в контейнере Docker!!!!!!"
+    return "Moe Flask приложение в контейнере Docker!!"
 
 
 @app.route("/api/movies/<movie_id>", methods=["GET"])
@@ -40,7 +40,6 @@ def movie_details(movie_id: str) -> str:
 
 @app.route("/api/movies", methods=["GET"], strict_slashes=False)
 def movies_list() -> str:
-    # print('HELLO API MOVIES')
     es = Elasticsearch(hosts=[{"host": "elasticsearch"}], retry_on_timeout=True)
     search_query = {
         "from": 0,
@@ -69,22 +68,15 @@ def movies_list() -> str:
 
     if not limit and not search or search == "":
         search_query["query"] = {"match_all": {}}
-    elif not limit.isdigit():
-        abort(422)
-        return
-    elif int(limit) < 0:
-        abort(422)
-        return
-    elif not page.isdigit():
-        abort(422)
-        return
-    elif int(page) <= 0:
-        abort(422)
-        return
-    elif sort_order not in ("asc", "desc"):
-        abort(422)
-        return
-    elif sort not in ("id", "title", "imdb_rating"):
+    elif (
+        not limit.isdigit()
+        or int(limit) < 0
+        or not page.isdigit()
+        or int(page) <= 0
+        or sort not in ("id", "title", "imdb_rating")
+        or sort_order not in ("asc", "desc")
+        or sort not in ("id", "title", "imdb_rating")
+    ):
         abort(422)
         return
 
@@ -120,4 +112,4 @@ def movies_list() -> str:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=8000, debug=True, use_reloader=True)
