@@ -154,7 +154,7 @@ def make_db_pretty():
         print("Movie actors updated")
 
     conn.close()
-
+# what is it
 
 def store_movies(es_obj):
     movies_data = get_data_from_db(
