@@ -18,30 +18,27 @@ CONN_PG = psycopg2.connect(
 
 
 def insert_batch_pg(query, values_list, conn_pg=CONN_PG):
-    cur = conn_pg.cursor()
-    execute_batch(
-        cur,
-        query,
-        values_list,
-        page_size=5000,
-    )
-    conn_pg.commit()
-    cur.close()
+    with conn_pg.cursor() as cur:
+        execute_batch(
+            cur,
+            query,
+            values_list,
+            page_size=5000,
+        )
+        conn_pg.commit()
 
 
 def get_data_from_pg(query, conn_pg=CONN_PG):
-    cur = conn_pg.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute(query)
-    rows = cur.fetchall()
-    cur.close()
-    return [dict(row) for row in rows]
+    with conn_pg.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(query)
+        rows = cur.fetchall()
+        return [dict(row) for row in rows]
 
 
 def alter_pg(query, conn_pg=CONN_PG):
-    cur = conn_pg.cursor()
-    cur.execute(query)
-    conn_pg.commit()
-    cur.close()
+    with conn_pg.cursor() as cur:
+        cur.execute(query)
+        conn_pg.commit()
 
 
 def create_database_and_tables(queries):
@@ -53,7 +50,6 @@ def get_data_from_sqlite(query, conn_sqlite=CONN_SQLITE):
     conn_sqlite.row_factory = sqlite3.Row
     cur = conn_sqlite.cursor()
     rows = cur.execute(query).fetchall()
-    conn_sqlite.commit()
     return [dict(ix) for ix in rows]
 
 
