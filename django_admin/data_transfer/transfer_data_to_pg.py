@@ -237,12 +237,12 @@ def tests():
 
 
 if __name__ == "__main__":
-    create_database_and_tables(create_queries)
-    insert_film_works_and_directors()
-    insert_genre_and_genre_film_work()
-    insert_actors_into_person_and_person_film_work()
-    insert_writers_into_person_and_person_film_work()
-    drop_old_id_columns()
+    # create_database_and_tables(create_queries)
+    # insert_film_works_and_directors()
+    # insert_genre_and_genre_film_work()
+    # insert_actors_into_person_and_person_film_work()
+    # insert_writers_into_person_and_person_film_work()
+    # drop_old_id_columns()
     tests()
 
 

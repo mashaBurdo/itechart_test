@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  web:
+    build: .
+#    restart: always
+    network_mode: "host"
+    environment:
+    - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+    volumes:
+    - .:/app
+    depends_on:
+    - db
+#    - migration
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+    - postgres_data:/var/lib/postgresql/data/
+    environment:
+    - POSTGRES_PASSWORD=123
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=movies
+    ports:
+    - 5432:5432
+
+#  migration:
+#    image: uzman
+#    command: python manage.py migrate --noinput
+#    volumes:
+#      - .:/app
+#    depends_on:
+#      - db
+volumes:
+  postgres_data:
