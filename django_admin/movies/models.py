@@ -19,6 +19,9 @@ class FilmWork(models.Model):
         managed = False
         db_table = 'film_work'
 
+    def __str__(self):
+        return self.title
+
 
 class Genre(models.Model):
     id = models.UUIDField(primary_key=True)
@@ -27,6 +30,9 @@ class Genre(models.Model):
     class Meta:
         managed = False
         db_table = 'genre'
+
+    def __str__(self):
+        return self.name
 
 
 class GenreFilmWork(models.Model):
@@ -37,6 +43,9 @@ class GenreFilmWork(models.Model):
     class Meta:
         managed = False
         db_table = 'genre_film_work'
+
+    def __str__(self):
+        return
 
 
 class Person(models.Model):

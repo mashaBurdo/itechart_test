@@ -1,10 +1,11 @@
 from django.contrib import admin
-from movies.models import FilmWork, Genre, Person
+from movies.models import FilmWork, Genre, Person, PersonFilmWork, GenreFilmWork
 
 admin.site.register(FilmWork)
 admin.site.register(Person)
+admin.site.register(PersonFilmWork)
 admin.site.register(Genre)
-
+admin.site.register(GenreFilmWork)
 
 # class PersonRoleInline(admin.TabularInline):
 #     model = PersonRole
