@@ -1,150 +1,108 @@
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
 from django.db import models
+from model_utils.fields import AutoCreatedField, AutoLastModifiedField
+import uuid
 from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
 
 
+class Type(models.TextChoices):
+    SERIAL = "Serial", _("Serial")
+    FILM = "Film", _("Film")
+
+
 class FilmWork(models.Model):
-    id = models.UUIDField(primary_key=True)
-    title = models.TextField()
-    description = models.TextField(blank=True, null=True)
-    creation_date = models.DateField(blank=True, null=True)
-    certificate = models.TextField(blank=True, null=True)
-    file_path = models.TextField(blank=True, null=True)
-    rating = models.FloatField(blank=True, null=True)
-    type = models.TextField(blank=True, null=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(_("title"), max_length=255)
+    description = models.TextField(_("description"), null=True, blank=True)
+    created_at = AutoCreatedField(_('created'))
+    updated_at = AutoLastModifiedField(_('modified'))
+    certificate = models.CharField(_("certificate"), max_length=255 , null=True, blank=True)
+    file_path = models.FileField(
+            _("file path"), upload_to="film_works/", null=True, blank=True
+        )
+    rating = models.FloatField(
+            _("rating"), validators=[MinValueValidator(0)], null=True, blank=True
+        )
+    type = models.TextField(_("type"), choices=Type.choices)
 
     class Meta:
         managed = False
         db_table = 'film_work'
+        verbose_name = _("film work")
+        indexes = [models.Index(fields=['title'])]
 
     def __str__(self):
         return self.title
 
 
 class Genre(models.Model):
-    id = models.UUIDField(primary_key=True)
-    name = models.TextField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(_("name"), max_length=255)
+    description = models.TextField(_("description"), null=True, blank=True)
+    created_at = AutoCreatedField(_('created'))
+    updated_at = AutoLastModifiedField(_('modified'))
 
     class Meta:
         managed = False
         db_table = 'genre'
+        verbose_name = _("genre")
 
     def __str__(self):
         return self.name
 
 
 class GenreFilmWork(models.Model):
-    id = models.UUIDField(primary_key=True)
-    film_work_id = models.UUIDField()
-    genre_id = models.UUIDField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    created_at = AutoCreatedField(_('created'))
 
     class Meta:
         managed = False
         db_table = 'genre_film_work'
+        verbose_name = _("genre film work")
+        indexes = [models.Index(fields=['genre', 'film_work'])]
 
     def __str__(self):
-        return
+        return self.genre
 
 
 class Person(models.Model):
-    id = models.UUIDField(primary_key=True)
-    name = models.TextField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(_("name"), max_length=255)
+    created_at = AutoCreatedField(_('created'))
+    updated_at = AutoLastModifiedField(_('modified'))
 
     class Meta:
         managed = False
         db_table = 'person'
+        verbose_name = _("person")
+        indexes = [models.Index(fields=['name'])]
+
+    def __str__(self):
+        return self.name
+
+
+class Role(models.TextChoices):
+    ACTOR = "Actor", _("Actor")
+    WRITER = "Writer", _("Writer")
+    DIRECTOR = "Director", _("Director")
 
 
 class PersonFilmWork(models.Model):
-    id = models.UUIDField(primary_key=True)
-    film_work_id = models.UUIDField()
-    person_id = models.UUIDField()
-    role = models.TextField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    role = models.TextField(_("role"), choices=Role.choices)
+    created_at = AutoCreatedField(_('created'))
 
     class Meta:
         managed = False
         db_table = 'person_film_work'
+        verbose_name = _("person film work")
+        indexes = [models.Index(fields=['person', 'film_work'])]
 
-
-# class Genre(TimeStampedModel):
-#     name = models.CharField(_("name"), max_length=255)
-#     description = models.TextField(_("description"), blank=True, null=True)
-#
-#     class Meta:
-#         verbose_name = _("genre")
-#         db_table = 'genre'
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class FilmWorkType(TimeStampedModel):
-#     name = models.CharField(_("name"), max_length=255)
-#
-#     class Meta:
-#         verbose_name = _("film work type")
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class FilmWork(TimeStampedModel):
-#     type = models.ForeignKey(
-#         FilmWorkType,
-#         verbose_name=_("film work type"),
-#         related_name="films",
-#         on_delete=models.SET_NULL,
-#         blank=True,
-#         null=True,
-#     )
-#     title = models.CharField(_("title"), max_length=255)
-#     description = models.TextField(_("description"), blank=True, null=True)
-#     creation_date = models.DateField(_("creation date"), blank=True, null=True)
-#     certificate = models.TextField(_("certificate"), blank=True, null=True)
-#     file_path = models.FileField(
-#         _("file path"), upload_to="film_works/", blank=True, null=True
-#     )
-#     rating = models.FloatField(
-#         _("rating"), validators=[MinValueValidator(0)], blank=True, null=True
-#     )
-#     genres = models.ManyToManyField(Genre, db_table='genre_film_work')
-#
-#     class Meta:
-#         verbose_name = _("film work")
-#         db_table = 'film_work'
-#
-#     def __str__(self):
-#         return self.title
-#
-#
-# class Person(TimeStampedModel):
-#     name = models.CharField(_("name"), max_length=255)
-#     # surname = models.CharField(_("surname"), max_length=255)
-#     films = models.ManyToManyField(FilmWork, through="PersonRole")
-#
-#     class Meta:
-#         verbose_name = _("person")
-#         db_table = 'person'
-#
-#     def __str__(self):
-#         return self.name  # + " " + self.surname
-#
-#
-# class Role(models.TextChoices):
-#     ACTOR = "actor", _("actor")
-#     WRITER = "writer", _("writer")
-#     DIRECTOR = "director", _("director")
-#
-#
-# class PersonRole(models.Model):
-#     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-#     film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE)
-#     role = models.TextField(_("role"), choices=Role.choices)
-#
-#     class Meta:
-#         db_table = 'person_film_work'
-#
-#     def __str__(self):
-#         return self.person
+    def __str__(self):
+        return self.person.__str__()
