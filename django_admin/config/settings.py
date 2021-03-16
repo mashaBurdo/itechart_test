@@ -77,7 +77,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'movies_dj',
+        # 'OPTIONS': {
+        #         'options': '-c search_path=content'
+        #     },
+        'NAME': 'movies',
         'USER': 'postgres',
         'PASSWORD': '123',
         'HOST': '127.0.0.1',

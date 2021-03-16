@@ -1,5 +1,5 @@
 create_queries = [
-    """CREATE TABLE IF NOT EXISTS content.film_work (
+    """CREATE TABLE IF NOT EXISTS film_work (
 id uuid PRIMARY KEY,
 title TEXT NOT NULL,
 description TEXT,
@@ -12,7 +12,7 @@ type TEXT,
 created_at timestamp with time zone,
 updated_at timestamp with time zone
 )""",
-    """CREATE TABLE IF NOT EXISTS content.genre (
+    """CREATE TABLE IF NOT EXISTS genre (
 id uuid PRIMARY KEY,
 name TEXT NOT NULL,
 old_id TEXT,
@@ -20,20 +20,20 @@ description TEXT,
 created_at timestamp with time zone, 
 updated_at timestamp with time zone
 )""",
-    """CREATE TABLE IF NOT EXISTS content.genre_film_work (
+    """CREATE TABLE IF NOT EXISTS genre_film_work (
 id uuid PRIMARY KEY,
 film_work_id uuid NOT NULL,
 genre_id uuid NOT NULL,
 created_at timestamp with time zone
 )""",
-    """CREATE TABLE content.person (
+    """CREATE TABLE person (
 id uuid PRIMARY KEY,
 name TEXT NOT NULL,
 birth_date DATE,
 created_at timestamp with time zone,
 updated_at timestamp with time zone
 )""",
-    """CREATE TABLE IF NOT EXISTS content.person_film_work (
+    """CREATE TABLE IF NOT EXISTS person_film_work (
 id uuid PRIMARY KEY,
 film_work_id uuid NOT NULL,
 person_id uuid NOT NULL,
