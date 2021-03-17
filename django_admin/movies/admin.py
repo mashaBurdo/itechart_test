@@ -7,15 +7,19 @@ from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
 class PersonFilmWorkInline(admin.TabularInline):
     model = PersonFilmWork
     extra = 0
+    readonly_fields = ['person', 'role', 'film_work']
 
     def get_queryset(self, request):
-        qs = super(PersonFilmWorkInline, self).get_queryset(request)
-        return qs.select_related("person")
+        return super().get_queryset(request).select_related('person',)
 
 
 class GenreFilmWorkInline(admin.TabularInline):
     model = GenreFilmWork
+    readonly_fields = ['genre', ]
     extra = 0
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('genre')
 
 
 @admin.register(FilmWork)
@@ -35,7 +39,7 @@ class FilmWorkAdmin(admin.ModelAdmin):
         "id",
     )
     readonly_fields = ("created_at", "updated_at", "id")
-    inlines = [GenreFilmWorkInline]
+    inlines = [GenreFilmWorkInline, PersonFilmWorkInline]
 
 
 @admin.register(Person)
