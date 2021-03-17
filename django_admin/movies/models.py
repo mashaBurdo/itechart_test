@@ -66,7 +66,7 @@ class GenreFilmWork(models.Model):
         indexes = [models.Index(fields=['genre', 'film_work'])]
 
     def __str__(self):
-        return self.genre
+        return str(self.genre)
 
 
 class Person(models.Model):
@@ -105,4 +105,4 @@ class PersonFilmWork(models.Model):
         indexes = [models.Index(fields=['person', 'film_work'])]
 
     def __str__(self):
-        return self.person.__str__()
+        return str(self.person)
