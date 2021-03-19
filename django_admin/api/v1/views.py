@@ -23,6 +23,7 @@ class Movies(BaseListView):
         for film in film_works:
             genres_data = GenreFilmWork.objects.filter(film_work_id=film["id"]).values('genre__name')
             persons_data = PersonFilmWork.objects.filter(film_work_id=film["id"]).values('person__name', 'role')
+            film['type'] = str(film['type'])
             film['genres'] = [genre['genre__name'] for genre in genres_data]
             film['actors'] = [person['person__name'] for person in persons_data if person['role'] == 'Actor']
             film['directors'] = [person['person__name'] for person in persons_data if person['role'] == 'Director']
@@ -31,15 +32,15 @@ class Movies(BaseListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(Movies, self).get_context_data(**kwargs)
-        paginator = Paginator(self.get_queryset(), self.paginate_by)
         page = context['page_obj'].number
+        paginator = Paginator(self.get_queryset(), self.paginate_by)
 
         context = {
             # "page": page,
             "count": paginator.count,
             "total_pages": paginator.num_pages,
-            'prev': paginator.page(page).previous_page_number() if paginator.page(page).has_previous() else 'null',
-            "next":  paginator.page(page).next_page_number() if paginator.page(page).has_next() else 'null',
+            'prev': paginator.page(page).previous_page_number() if paginator.page(page).has_previous() else None,
+            "next":  paginator.page(page).next_page_number() if paginator.page(page).has_next() else None,
             "results": list(paginator.page(page))
         }
         return context
@@ -66,6 +67,7 @@ class MovieByID(BaseListView):
             return {}
         genres_data = GenreFilmWork.objects.filter(film_work_id=film["id"]).values('genre__name')
         persons_data = PersonFilmWork.objects.filter(film_work_id=film["id"]).values('person__name', 'role')
+        film['type'] = str(film['type'])
         film['genres'] = [genre['genre__name'] for genre in genres_data]
         film['actors'] = [person['person__name'] for person in persons_data if person['role'] == 'Actor']
         film['directors'] = [person['person__name'] for person in persons_data if person['role'] == 'Director']
@@ -77,4 +79,5 @@ class MovieByID(BaseListView):
         return context
 
     def render_to_response(self, context, **response_kwargs):
+        print('!!!TYYYYYYYYYYYYYPE', type(JsonResponse(context)))
         return JsonResponse(context)
