@@ -1,17 +1,14 @@
-from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Q
-from django.http import JsonResponse
-from django.views.generic.list import BaseListView
-from django.db.models import F, UUIDField
-from django.db.models import OuterRef, Subquery
 import math
 import uuid
-from movies.models import FilmWork, Person, PersonFilmWork, Genre, GenreFilmWork
-from django.db.models import Exists, OuterRef
-from django.core.paginator import Paginator
-from django.core.paginator import EmptyPage
-from django.core.paginator import PageNotAnInteger
 
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Exists, F, OuterRef, Q, Subquery, UUIDField
+from django.http import JsonResponse
+from django.views.generic.list import BaseListView
+
+from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
+                           PersonFilmWork)
 
 
 class Movies(BaseListView):
@@ -20,17 +17,9 @@ class Movies(BaseListView):
     paginate_by = 50
 
     def get_queryset(self):
-        page = int(self.request.GET.get('page'))
-        pag_by = self.paginate_by
-        if not page:
-            page = 1
-        if page == 'last':
-            count = FilmWork.objects.all().count()
-            page = math.ceil(count/pag_by)
         film_works = FilmWork.objects.values(
             "id", "title", "description", "rating", "type"
-        )[pag_by*(page-1):pag_by*page].annotate(creation_date=F("created_at"))
-        cnt = 1
+        ).annotate(creation_date=F("created_at"))
         for film in film_works:
             genres_data = GenreFilmWork.objects.filter(film_work_id=film["id"]).values('genre__name')
             persons_data = PersonFilmWork.objects.filter(film_work_id=film["id"]).values('person__name', 'role')
@@ -38,22 +27,20 @@ class Movies(BaseListView):
             film['actors'] = [person['person__name'] for person in persons_data if person['role'] == 'Actor']
             film['directors'] = [person['person__name'] for person in persons_data if person['role'] == 'Director']
             film['writers'] = [person['person__name'] for person in persons_data if person['role'] == 'Writer']
-            # cnt += 1
         return film_works
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        page = int(self.request.GET.get('page'))
-        pag_by = self.paginate_by
-        count = FilmWork.objects.all().count()
-        total = math.ceil(count/pag_by)
+        context = super(Movies, self).get_context_data(**kwargs)
+        paginator = Paginator(self.get_queryset(), self.paginate_by)
+        page = context['page_obj'].number
+
         context = {
             # "page": page,
-            # "pag_by": pag_by,
-            "count": count,
-            "total_pages": total,
-            "prev": page - 1 if page - 1 > 0 else "null",
-            "next":  page + 1 if page + 1 <= total else "null",
-            "results": list(self.get_queryset())
+            "count": paginator.count,
+            "total_pages": paginator.num_pages,
+            'prev': paginator.page(page).previous_page_number() if paginator.page(page).has_previous() else 'null',
+            "next":  paginator.page(page).next_page_number() if paginator.page(page).has_next() else 'null',
+            "results": list(paginator.page(page))
         }
         return context
 
