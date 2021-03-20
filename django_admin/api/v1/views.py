@@ -1,9 +1,10 @@
+from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.core.paginator import Paginator
-from django.db.models import F
+from django.db.models import F, Q
 from django.http import JsonResponse
 from django.views.generic.list import BaseListView
-
-from movies.models import FilmWork, GenreFilmWork, PersonFilmWork
+from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
+                           PersonFilmWork)
 
 
 class Movies(BaseListView):
@@ -14,31 +15,27 @@ class Movies(BaseListView):
     def get_queryset(self):
         film_works = FilmWork.objects.values(
             "id", "title", "description", "rating", "type"
-        ).annotate(creation_date=F("created_at"))
+        ).annotate(
+            creation_date=F("created_at"),
+            genres=ArrayAgg("genres__name", distinct=True),
+            actors=ArrayAgg(
+                "persons__name",
+                distinct=True,
+                filter=Q(persons__personfilmwork__role="Actor"),
+            ),
+            writers=ArrayAgg(
+                "persons__name",
+                distinct=True,
+                filter=Q(persons__personfilmwork__role="Writer"),
+            ),
+            directors=ArrayAgg(
+                "persons__name",
+                distinct=True,
+                filter=Q(persons__personfilmwork__role="Director"),
+            ),
+        )
         for film in film_works:
-            genres_data = GenreFilmWork.objects.filter(film_work_id=film["id"]).values(
-                "genre__name"
-            )
-            persons_data = PersonFilmWork.objects.filter(
-                film_work_id=film["id"]
-            ).values("person__name", "role")
             film["type"] = str(film["type"])
-            film["genres"] = [genre["genre__name"] for genre in genres_data]
-            film["actors"] = [
-                person["person__name"]
-                for person in persons_data
-                if person["role"] == "Actor"
-            ]
-            film["directors"] = [
-                person["person__name"]
-                for person in persons_data
-                if person["role"] == "Director"
-            ]
-            film["writers"] = [
-                person["person__name"]
-                for person in persons_data
-                if person["role"] == "Writer"
-            ]
         return film_works
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -71,40 +68,32 @@ class MovieByID(BaseListView):
         film_uuid = self.kwargs.get("movie_uuid")
         film = {}
         try:
-            film = (
-                FilmWork.objects.filter(id=film_uuid)
-                .values("id", "title", "description", "rating", "type")
-                .annotate(creation_date=F("created_at"))
-                .first()
-            )
+            film = FilmWork.objects.filter(id=film_uuid).values(
+                "id", "title", "description", "rating", "type"
+            ).annotate(
+                creation_date=F("created_at"),
+                genres=ArrayAgg("genres__name", distinct=True),
+                actors=ArrayAgg(
+                    "persons__name",
+                    distinct=True,
+                    filter=Q(persons__personfilmwork__role="Actor"),
+                ),
+                writers=ArrayAgg(
+                    "persons__name",
+                    distinct=True,
+                    filter=Q(persons__personfilmwork__role="Writer"),
+                ),
+                directors=ArrayAgg(
+                    "persons__name",
+                    distinct=True,
+                    filter=Q(persons__personfilmwork__role="Director"),
+                ),
+            ).first()
         except Exception as e:
-            print("LOOOOO", e)
             return {"e": str(e)}
         if not film:
             return {}
-        genres_data = GenreFilmWork.objects.filter(film_work_id=film["id"]).values(
-            "genre__name"
-        )
-        persons_data = PersonFilmWork.objects.filter(film_work_id=film["id"]).values(
-            "person__name", "role"
-        )
         film["type"] = str(film["type"])
-        film["genres"] = [genre["genre__name"] for genre in genres_data]
-        film["actors"] = [
-            person["person__name"]
-            for person in persons_data
-            if person["role"] == "Actor"
-        ]
-        film["directors"] = [
-            person["person__name"]
-            for person in persons_data
-            if person["role"] == "Director"
-        ]
-        film["writers"] = [
-            person["person__name"]
-            for person in persons_data
-            if person["role"] == "Writer"
-        ]
         return film
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -112,5 +101,4 @@ class MovieByID(BaseListView):
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        print("!!!TYYYYYYYYYYYYYPE", type(JsonResponse(context)))
         return JsonResponse(context)

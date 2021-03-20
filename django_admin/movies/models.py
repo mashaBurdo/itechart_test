@@ -8,6 +8,38 @@ from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 from model_utils.models import TimeStampedModel
 
 
+class Genre(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(_("name"), max_length=255)
+    description = models.TextField(_("description"), null=True, blank=True)
+    created_at = AutoCreatedField(_("created"))
+    updated_at = AutoLastModifiedField(_("modified"))
+
+    class Meta:
+        managed = False
+        db_table = "genre"
+        verbose_name = _("genre")
+
+    def __str__(self):
+        return self.name
+
+
+class Person(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(_("name"), max_length=255)
+    created_at = AutoCreatedField(_("created"))
+    updated_at = AutoLastModifiedField(_("modified"))
+
+    class Meta:
+        managed = False
+        db_table = "person"
+        verbose_name = _("person")
+        indexes = [models.Index(fields=["name"])]
+
+    def __str__(self):
+        return self.name
+
+
 class Type(models.TextChoices):
     SERIAL = "Serial", _("Serial")
     FILM = "Film", _("Film")
@@ -29,31 +61,17 @@ class FilmWork(models.Model):
         _("rating"), validators=[MinValueValidator(0)], null=True, blank=True
     )
     type = models.TextField(_("type"), choices=Type.choices)
+    genres = models.ManyToManyField(Genre, through='GenreFilmWork')
+    persons = models.ManyToManyField(Person, through='PersonFilmWork')
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = "film_work"
         verbose_name = _("film work")
         indexes = [models.Index(fields=["title"])]
 
     def __str__(self):
         return self.title
-
-
-class Genre(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(_("name"), max_length=255)
-    description = models.TextField(_("description"), null=True, blank=True)
-    created_at = AutoCreatedField(_("created"))
-    updated_at = AutoLastModifiedField(_("modified"))
-
-    class Meta:
-        managed = False
-        db_table = "genre"
-        verbose_name = _("genre")
-
-    def __str__(self):
-        return self.name
 
 
 class GenreFilmWork(models.Model):
@@ -70,22 +88,6 @@ class GenreFilmWork(models.Model):
 
     def __str__(self):
         return str(self.genre)
-
-
-class Person(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(_("name"), max_length=255)
-    created_at = AutoCreatedField(_("created"))
-    updated_at = AutoLastModifiedField(_("modified"))
-
-    class Meta:
-        managed = False
-        db_table = "person"
-        verbose_name = _("person")
-        indexes = [models.Index(fields=["name"])]
-
-    def __str__(self):
-        return self.name
 
 
 class Role(models.TextChoices):
