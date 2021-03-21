@@ -5,7 +5,7 @@ services:
   django_gunicorn:
     restart: always
     volumes:
-      - .:/code
+      - ./django_project:/app
       - static:/static
     env_file:
       - .env
@@ -15,7 +15,6 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    command: /usr/local/bin/gunicorn myapp.wsgi:application -w 2 -b :8000 --reload
 
   db:
     image: postgres
@@ -31,7 +30,9 @@ services:
 
   nginx:
     build: ./nginx
+    restart: always
     volumes:
+      - .:/code
       - static:/static
     ports:
       - "80:80"
@@ -39,7 +40,7 @@ services:
       - django_gunicorn
 
 volumes:
-  app:
+  code:
   static:
   postgres_data:
 

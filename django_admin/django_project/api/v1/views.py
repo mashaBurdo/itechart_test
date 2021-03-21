@@ -12,7 +12,7 @@ class LolKek(BaseListView):
         return Genre.objects.all()
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse({'LooooL': 'Kek'})
+        return JsonResponse({'LoL': 'Kek'})
 
 
 class Movies(BaseListView):
