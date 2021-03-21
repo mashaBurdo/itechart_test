@@ -27,15 +27,13 @@ services:
     ports:
     - 5432:5432
 
+
   nginx:
-    image: nginx:1.17
-    container_name: ngx
-    links:
-      - "web"
+    build: ./nginx
+    volumes:
+      - .:/app
     ports:
       - "80:80"
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
     depends_on:
       - web
 
