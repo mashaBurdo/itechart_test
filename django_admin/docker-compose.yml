@@ -1,20 +1,21 @@
-version: '3'
+version: '3.7'
 
 services:
-  web:
-    build: .
-    network_mode: "host"
-    environment:
-    - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+
+  django_gunicorn:
+    restart: always
     volumes:
-    - .:/app
+      - .:/code
+      - static:/static
+    env_file:
+      - .env
+    build:
+      context: .
     ports:
       - "8000:8000"
-#    command:
-#      "gunicorn --workers=2 --bind=0.0.0.0:8000 mysite.wsgi:application"
-
     depends_on:
-    - db
+      - db
+    command: /usr/local/bin/gunicorn myapp.wsgi:application -w 2 -b :8000 --reload
 
   db:
     image: postgres
@@ -31,11 +32,14 @@ services:
   nginx:
     build: ./nginx
     volumes:
-      - .:/app
+      - static:/static
     ports:
       - "80:80"
     depends_on:
-      - web
+      - django_gunicorn
 
 volumes:
+  app:
+  static:
   postgres_data:
+

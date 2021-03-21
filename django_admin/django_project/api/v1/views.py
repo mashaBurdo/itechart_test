@@ -7,6 +7,14 @@ from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
                            PersonFilmWork)
 
 
+class LolKek(BaseListView):
+    def get_queryset(self):
+        return Genre.objects.all()
+
+    def render_to_response(self, context, **response_kwargs):
+        return JsonResponse({'LooooL': 'Kek'})
+
+
 class Movies(BaseListView):
     model = FilmWork
     http_method_names = ["get"]

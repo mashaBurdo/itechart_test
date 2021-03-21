@@ -1,7 +1,7 @@
+psycopg2-binary
+dj-static
+gunicorn==20.0.4
 asgiref==3.2.10
 Django==3.1
 django-debug-toolbar==2.2
 django-model-utils==4.0.0
-psycopg2==2.8.6
-pytz==2021.1
-sqlparse==0.4.1
