@@ -16,6 +16,5 @@ class Movie:
         print(*list(self.schedule_gen()), sep='\n')
 
 
-
 m = Movie([(datetime(2020, 1, 1), datetime(2020, 1, 7)), (datetime(2020, 1, 15), datetime(2020, 2, 7))])
 m.schedule()
