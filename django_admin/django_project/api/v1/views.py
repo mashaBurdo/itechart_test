@@ -3,8 +3,7 @@ from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.http import JsonResponse
 from django.views.generic.list import BaseListView
-from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
-                           PersonFilmWork)
+from movies.models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
 
 
 class LolKek(BaseListView):
@@ -12,7 +11,7 @@ class LolKek(BaseListView):
         return Genre.objects.all()
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse({'LoL': 'Kek'})
+        return JsonResponse({"LoL": "Kek"})
 
 
 class Movies(BaseListView):
@@ -50,16 +49,22 @@ class Movies(BaseListView):
         context = super(Movies, self).get_context_data(**kwargs)
         page = context["page_obj"].number
         paginator = Paginator(self.get_queryset(), self.paginate_by)
+        prev_page = (
+            paginator.page(page).previous_page_number()
+            if paginator.page(page).has_previous()
+            else None
+        )
+        next_page = (
+            paginator.page(page).next_page_number()
+            if paginator.page(page).has_next()
+            else None
+        )
 
         context = {
             "count": paginator.count,
             "total_pages": paginator.num_pages,
-            "prev": paginator.page(page).previous_page_number()
-            if paginator.page(page).has_previous()
-            else None,
-            "next": paginator.page(page).next_page_number()
-            if paginator.page(page).has_next()
-            else None,
+            "prev": prev_page,
+            "next": next_page,
             "results": list(paginator.page(page)),
         }
         return context
@@ -76,27 +81,30 @@ class MovieByID(BaseListView):
         film_uuid = self.kwargs.get("movie_uuid")
         film = {}
         try:
-            film = FilmWork.objects.filter(id=film_uuid).values(
-                "id", "title", "description", "rating", "type"
-            ).annotate(
-                creation_date=F("created_at"),
-                genres=ArrayAgg("genres__name", distinct=True),
-                actors=ArrayAgg(
-                    "persons__name",
-                    distinct=True,
-                    filter=Q(persons__personfilmwork__role="Actor"),
-                ),
-                writers=ArrayAgg(
-                    "persons__name",
-                    distinct=True,
-                    filter=Q(persons__personfilmwork__role="Writer"),
-                ),
-                directors=ArrayAgg(
-                    "persons__name",
-                    distinct=True,
-                    filter=Q(persons__personfilmwork__role="Director"),
-                ),
-            ).first()
+            film = (
+                FilmWork.objects.filter(id=film_uuid)
+                .values("id", "title", "description", "rating", "type")
+                .annotate(
+                    creation_date=F("created_at"),
+                    genres=ArrayAgg("genres__name", distinct=True),
+                    actors=ArrayAgg(
+                        "persons__name",
+                        distinct=True,
+                        filter=Q(persons__personfilmwork__role="Actor"),
+                    ),
+                    writers=ArrayAgg(
+                        "persons__name",
+                        distinct=True,
+                        filter=Q(persons__personfilmwork__role="Writer"),
+                    ),
+                    directors=ArrayAgg(
+                        "persons__name",
+                        distinct=True,
+                        filter=Q(persons__personfilmwork__role="Director"),
+                    ),
+                )
+                .first()
+            )
         except Exception as e:
             return {"e": str(e)}
         if not film:
