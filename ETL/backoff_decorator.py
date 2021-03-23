@@ -35,7 +35,7 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
                         else border_time
                     )
                     print(
-                        f"{str(e)} exception occurred, reconnecting in {start_time} seconds."
+                        f"The following exception was raised:\n{str(e)}.\nReconnecting in {start_time} seconds.\n★★★★★★★"
                     )
                     time.sleep(start_time)
 
@@ -44,18 +44,18 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
     return func_wrapper
 
 
-@backoff()
-def test_pg_connection():
-    try:
-        conn = psycopg2.connect(
-            dbname="movies",
-            user="postgres",
-            password="12345",
-            host="localhost",
-            port=5432,
-        )
-    except Exception as e:
-        raise Exception(str(e))
-
-
-test_pg_connection()
+# @backoff()
+# def test_pg_connection():
+#     try:
+#         conn = psycopg2.connect(
+#             dbname="movies",
+#             user="postgres",
+#             password="12345",
+#             host="localhost",
+#             port=5432,
+#         )
+#     except Exception as e:
+#         raise Exception(str(e))
+#
+#
+# test_pg_connection()
