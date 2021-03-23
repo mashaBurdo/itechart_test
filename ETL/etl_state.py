@@ -1,8 +1,8 @@
 """
-DONE 1. Storage is saved as a dict
-DONE 2. Data are saved to file as a json
+1. Storage is saved as a dict
+2. Data are saved to file as a json
 3. If no key - then None
-DONE 4. If file is empty - empty dict
+4. If file is empty - empty dict
 5. After getting key-value pair it is saved to file
 """
 import json
@@ -13,29 +13,34 @@ FILE_PATH = 'state.json'
 
 
 class State:
-    """Implements state recovery when app starts, if such state existed
-    WORKS WITH LOCAL STORAGE"
-    needs a storage parametr"""
-    def __init__(self, file_path):
-        pass
-
-    def set_state(self):
-        pass
-
-    def get_state(self):
-        pass
-
-
-class Storage:
+    """Implements state recovery when app starts, if such state existed"""
     def __init__(self):
-        pass
+        self.storage = JsonFileStorage()
+        self.state = self.retrieve_state()
 
     def retrieve_state(self):
-        """Gets state of permanent storage. Returns empty dict if storage is empty"""
-        pass
+        state = self.storage.retrieve_state()
+        return state
 
-    def save_state(self):
-        pass
+    def set_state(self, key, value):
+        self.storage.save_state({key: value})
+        return {key: value}
+
+    def get_state(self, key):
+        value = self.state.get(key)
+        return value
+
+#
+# class Storage:
+#     def __init__(self):
+#         pass
+#
+#     def retrieve_state(self):
+#         """Gets state of permanent storage. Returns empty dict if storage is empty"""
+#         pass
+#
+#     def save_state(self):
+#         pass
 
 
 class JsonFileStorage:
@@ -44,7 +49,7 @@ class JsonFileStorage:
         self.file_path = file_path
 
     @backoff()
-    def load_data(self):
+    def retrieve_state(self):
         with open(self.file_path, 'r') as file:
             try:
                 data = json.load(file)
@@ -53,12 +58,17 @@ class JsonFileStorage:
                 return {}
 
     @backoff()
-    def dump_data(self, state):
+    def save_state(self, state):
         with open(self.file_path, 'w') as file:
             json.dump(state, file)
 
 
 json_st = JsonFileStorage()
-print(json_st.load_data())
-json_st.dump_data({"ha": "ha"})
-print(json_st.load_data())
+print(json_st.retrieve_state())
+json_st.save_state({"lol": "kek"})
+print(json_st.retrieve_state())
+
+
+my_state = State()
+print(my_state.set_state('he', 'ha'))
+print(my_state.get_state('he')) # TODO: Why none?????
