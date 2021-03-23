@@ -23,8 +23,9 @@ class State:
         return state
 
     def set_state(self, key, value):
-        self.storage.save_state({key: value})
-        return {key: value}
+        self.state = {key: value}
+        self.storage.save_state(self.state)
+        return self.state
 
     def get_state(self, key):
         value = self.state.get(key)
@@ -61,14 +62,24 @@ class JsonFileStorage:
     def save_state(self, state):
         with open(self.file_path, 'w') as file:
             json.dump(state, file)
+            return state
 
 
-json_st = JsonFileStorage()
-print(json_st.retrieve_state())
-json_st.save_state({"lol": "kek"})
-print(json_st.retrieve_state())
+def test_json():
+    json_st = JsonFileStorage()
+    print('RETRIEVE_STATE before', json_st.retrieve_state())
+    print('SAVE_STATE', json_st.save_state({"lol": "kek"}))
+    print('RETRIEVE_STATE after', json_st.retrieve_state())
 
 
-my_state = State()
-print(my_state.set_state('he', 'ha'))
-print(my_state.get_state('he')) # TODO: Why none?????
+def test_state():
+    my_state = State()
+    print('SET_STATE', my_state.set_state('he', 'ha'))
+    print('STATE', my_state.state)
+    print('GET_STATE', my_state.get_state('he'))
+
+
+if __name__ == '__main__':
+    test_json()
+    test_state()
+
