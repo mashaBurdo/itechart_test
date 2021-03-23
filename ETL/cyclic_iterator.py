@@ -19,7 +19,7 @@ class CyclicIterator:
                 self.__init__(self.restart)
 
 
-cyclic_iterator = CyclicIterator(['a','b','c'])
+cyclic_iterator = CyclicIterator(["a", "b", "c"])
 for i in cyclic_iterator:
     print(i)
     time.sleep(0.5)
