@@ -32,26 +32,11 @@
 
 import logging
 import time
+
 from elasticsearch import Elasticsearch
 
 from etl_conrstants import ES_HOST, ES_INDEX
 from etl_modules.backoff_decorator import backoff
-
-
-def create_index(es_object, index_name="movies"):
-    created = False
-    index = ES_INDEX
-    try:
-        if not es_object.indices.exists(index_name):
-            es_object.indices.create(index=index_name, ignore=400, body=index)
-            logging.info('Index created successfully.')
-        else:
-            logging.info("Index was already created.")
-        created = True
-    except:
-        logging.error("Index wasn't created.", exc_info=True)
-    finally:
-        return created
 
 
 @backoff()
@@ -62,6 +47,22 @@ def connect_elasticrearch(hostname: str):
         return es_obj
     except Exception as e:
         raise Exception(str(e))
+
+
+def create_index(es_object, index_name="movies"):
+    created = False
+    index = ES_INDEX
+    try:
+        if not es_object.indices.exists(index_name):
+            es_object.indices.create(index=index_name, ignore=400, body=index)
+            logging.info("Index created successfully.")
+        else:
+            logging.info("Index was already created.")
+        created = True
+    except:
+        logging.error("Index wasn't created.", exc_info=True)
+    finally:
+        return created
 
 
 if __name__ == "__main__":
