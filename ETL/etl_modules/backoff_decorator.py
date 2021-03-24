@@ -1,4 +1,5 @@
 import time
+import  logging
 from functools import wraps
 import psycopg2
 
@@ -25,7 +26,7 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
             start_time = start_sleep_time
             border_time = border_sleep_time
             f = factor
-            while True:
+            while start_time < border_time:
                 try:
                     return func(*args, **kwargs)
                 except Exception as e:
@@ -38,6 +39,9 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
                         f"The following exception was raised:\n{str(e)}.\nReconnecting in {start_time} seconds.\n★★★★★★★"
                     )
                     time.sleep(start_time)
+            else:
+                print("Couldn't connect. Border time is reached.")
+                return
 
         return inner
 
