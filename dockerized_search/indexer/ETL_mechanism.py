@@ -193,12 +193,13 @@ def store_movies(es_obj):
 
 if __name__ == "__main__":
     # make_db_pretty()
-    es = Elasticsearch(hosts=[{"host": "elasticsearch"}], retry_on_timeout=True)
+    es = Elasticsearch(hosts=[{"host": "localhost"}], retry_on_timeout=True)
     for _ in range(100):
         try:
             # make sure the cluster is available
             es.cluster.health(wait_for_status="yellow")
         except ConnectionError:
+            print('lol')
             time.sleep(2)
-    # create_index(es)
-    # store_movies(es)
+    create_index(es)
+    store_movies(es)

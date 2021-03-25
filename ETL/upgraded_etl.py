@@ -34,8 +34,10 @@ import logging
 import time
 
 from elasticsearch import Elasticsearch
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-from etl_conrstants import ES_HOST, ES_INDEX
+from etl_conrstants import ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA, CONN_PG
 from etl_modules.backoff_decorator import backoff
 
 
@@ -49,9 +51,9 @@ def connect_elasticrearch(hostname: str):
         raise Exception(str(e))
 
 
-def create_index(es_object, index_name="movies"):
+def create_index(es_object, index_name=ES_INDEX_NAME):
     created = False
-    index = ES_INDEX
+    index = ES_INDEX_SCHEMA
     try:
         if not es_object.indices.exists(index_name):
             es_object.indices.create(index=index_name, ignore=400, body=index)
@@ -65,7 +67,54 @@ def create_index(es_object, index_name="movies"):
         return created
 
 
+# @backoff()
+def get_data_from_pg(query, conn_pg=CONN_PG):
+    with conn_pg.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute(query)
+        rows = cur.fetchall()
+        return [dict(row) for row in rows]
+
+
+def store_movies(es_obj):
+    film_works_data = get_data_from_pg(
+        "SELECT id, rating imdb_rating, title, description FROM film_work"
+    )
+
+    # print(film_works_data[0])
+    for film_work in film_works_data:
+
+        film_work["imdb_rating"] = float(film_work["imdb_rating"])
+        person_query = f'SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=\'{film_work["id"]}\''
+        person_data = get_data_from_pg(person_query)
+        film_work["actors"] = [{"id": a["id"], "name": a["name"]} for a in person_data if a["role"] == "Actor"]
+        actors_names = [a["name"] for a in person_data if a["role"] == "Actor"]
+        film_work["actors_names"] = ', '.join(map(str, actors_names))
+        film_work["writers"] = [{"id": a["id"], "name": a["name"]} for a in person_data if a["role"] == "Writer"]
+        writers_names = [a["name"] for a in person_data if a["role"] == "Writer"]
+        film_work["writers_names"] = ', '.join(map(str, writers_names))
+        film_work["director"] = [a["name"] for a in person_data if a["role"] == "Director"]
+
+        genre_query = f'SELECT g.name FROM genre_film_work gf JOIN genre g ON gf.genre_id = g.id WHERE film_work_id=\'{film_work["id"]}\''
+        genre_data = get_data_from_pg(genre_query)
+        film_work["genre"] = [g['name'] for g in genre_data]
+
+        store_record(es_obj, film_work)
+
+
+def store_record(elastic_object, record, index_name=ES_INDEX_NAME):
+    is_stored = True
+    try:
+        elastic_object.index(index=index_name, body=record)
+    except Exception as ex:
+        print("Error in indexing data")
+        print(str(ex))
+        is_stored = False
+    finally:
+        return is_stored
+
+
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
     es = connect_elasticrearch(ES_HOST)
     create_index(es)
+    store_movies(es)

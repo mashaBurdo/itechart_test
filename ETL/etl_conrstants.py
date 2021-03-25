@@ -1,6 +1,19 @@
+import psycopg2
+
+
+CONN_PG = psycopg2.connect(
+    dbname="movies",
+    user="postgres",
+    password="123",
+    host="localhost",
+    port=5432,
+)
+
 ES_HOST = "localhost"
 
-ES_INDEX = {
+ES_INDEX_NAME = "movies"
+
+ES_INDEX_SCHEMA = {
         "settings": {
             "refresh_interval": "1s",
             "analysis": {
