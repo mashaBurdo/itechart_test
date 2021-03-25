@@ -69,7 +69,11 @@ class JsonFileStorage:
     @backoff()
     def save_state(self, state):
         with open(self.file_path, "r+") as file:
-            data = json.load(file)
+            # data = {}
+            try:
+                data = json.load(file)
+            except json.JSONDecodeError:
+                data = {}
             data.update(state)
             file.seek(0)
             json.dump(data, file)
@@ -77,7 +81,7 @@ class JsonFileStorage:
 
 
 class RedisStorage:
-    def __init__(self, redis_adapter=Redis("localhost")):
+    def __init__(self, redis_adapter=Redis(host=u'localhost', port=6379)):
         self.redis_adapter = redis_adapter
 
     @backoff()
@@ -111,7 +115,7 @@ def test_state():
 def test_redis():
     r = RedisStorage()
     print("REDIS RETRIEVE_STATE before", r.retrieve_state())
-    print("REDIS SAVE_STATE", r.save_state({"lol": "kek"}))
+    print("REDIS SAVE_STATE", r.save_state({"rysssdddd": "dis"}))
     print("REDIS RETRIEVE_STATE after", r.retrieve_state())
 
 

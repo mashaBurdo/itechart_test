@@ -60,7 +60,16 @@ services:
     networks:
       some_network:
 
+  redis:
+    container_name: redis
+    image: redis:3.2.0
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redisdata:/redistata
+
 volumes:
+  redisdata:
   code:
   static:
   postgres_data:
