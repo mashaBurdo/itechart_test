@@ -9,6 +9,8 @@ services:
     environment:
       - bootstrap.memory_lock=false
       - discovery.type=single-node
+    networks:
+      some_network:
 
   django_gunicorn:
     restart: always
@@ -24,6 +26,10 @@ services:
     depends_on:
       - elasticsearch
       - db
+    links:
+      - db:db
+    networks:
+      some_network:
 
   db:
     image: postgres
@@ -35,7 +41,8 @@ services:
     - POSTGRES_DB=movies
     ports:
     - 5432:5432
-
+    networks:
+      some_network:
 
   nginx:
     build: ./nginx
@@ -48,9 +55,16 @@ services:
     depends_on:
       - django_gunicorn
       - elasticsearch
+    links:
+      - db:db
+    networks:
+      some_network:
 
 volumes:
   code:
   static:
   postgres_data:
 
+networks:
+  some_network:
+    driver: bridge

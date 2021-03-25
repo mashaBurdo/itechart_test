@@ -60,7 +60,7 @@ class FilmWork(models.Model):
     rating = models.FloatField(
         _("rating"), validators=[MinValueValidator(0)], null=True, blank=True
     )
-    type = models.TextField(_("type"), choices=Type.choices)
+    type = models.TextField(_("type"), choices=Type.choices, default=Type.FILM)
     genres = models.ManyToManyField(Genre, through='GenreFilmWork')
     persons = models.ManyToManyField(Person, through='PersonFilmWork')
 

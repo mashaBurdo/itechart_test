@@ -26,7 +26,7 @@ film_work_id uuid NOT NULL,
 genre_id uuid NOT NULL,
 created_at timestamp with time zone
 )""",
-    """CREATE TABLE person (
+    """CREATE TABLE IF NOT EXISTS  person (
 id uuid PRIMARY KEY,
 name TEXT NOT NULL,
 birth_date DATE,

@@ -1,9 +1,11 @@
-import uuid
-import psycopg2
-from psycopg2.extras import execute_batch, RealDictCursor
+import logging
 import sqlite3
-from pg_table_create_queries import create_queries
+import uuid
 
+import psycopg2
+from psycopg2.extras import RealDictCursor, execute_batch
+
+from pg_table_create_queries import create_queries
 
 CONN_SQLITE = sqlite3.connect("db.sqlite")
 
@@ -31,6 +33,13 @@ def insert_batch_pg(query, values_list, conn_pg=CONN_PG):
 def get_data_from_pg(query, conn_pg=CONN_PG):
     with conn_pg.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(query)
+        rows = cur.fetchall()
+        return [dict(row) for row in rows]
+
+
+def get_data_from_pg_with_data(query, data, conn_pg=CONN_PG):
+    with conn_pg.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(query, data)
         rows = cur.fetchall()
         return [dict(row) for row in rows]
 
@@ -109,9 +118,7 @@ def insert_film_works_and_directors():
 def insert_genre_and_genre_film_work():
     genres_data = get_data_from_sqlite("SELECT id, genre FROM genres")
     genres = [(str(uuid.uuid4()), genre["genre"], genre["id"]) for genre in genres_data]
-    insert_batch_pg(
-        "INSERT INTO genre (id, name, old_id) VALUES (%s, %s, %s)", genres
-    )
+    insert_batch_pg("INSERT INTO genre (id, name, old_id) VALUES (%s, %s, %s)", genres)
 
     movie_genres_data = get_data_from_sqlite(
         "SELECT id, movie_id, genre_id FROM movie_genres"
@@ -119,12 +126,12 @@ def insert_genre_and_genre_film_work():
     genre_film_work = []
     for movie_genre_data in movie_genres_data:
         sqlite_movie_id = movie_genre_data["movie_id"]
-        pg_film_work_id = get_data_from_pg(
-            f"SELECT id FROM film_work WHERE old_id = '{sqlite_movie_id}'"
+        pg_film_work_id = get_data_from_pg_with_data(
+            "SELECT id FROM film_work WHERE old_id = %(mi)s", {"mi": sqlite_movie_id}
         )[0]["id"]
         sqlite_genre_id = movie_genre_data["genre_id"]
-        pg_genre_id = get_data_from_pg(
-            f"SELECT id FROM genre WHERE old_id = '{sqlite_genre_id}'"
+        pg_genre_id = get_data_from_pg_with_data(
+            "SELECT id FROM genre WHERE old_id = %(gi)s", {"gi": sqlite_genre_id}
         )[0]["id"]
         genre_film_work.append((str(uuid.uuid4()), pg_film_work_id, pg_genre_id))
 
@@ -138,9 +145,8 @@ def insert_actors_into_person_and_person_film_work():
     actors_data = get_data_from_sqlite("SELECT id, name FROM actors")
     actors = []
     for actor in actors_data:
-        query_name = actor["name"].replace("'", "''")
-        person_exists = get_data_from_pg(
-            f"SELECT * FROM person WHERE name = '{query_name}'"
+        person_exists = get_data_from_pg_with_data(
+            "SELECT * FROM person WHERE name = %(an)s", {"an": actor["name"]}
         )
         if not person_exists:
             actors.append((str(uuid.uuid4()), actor["name"]))
@@ -152,12 +158,12 @@ def insert_actors_into_person_and_person_film_work():
     person_film_work = []
     for movie_actor_data in movie_actors_data:
         sqlite_movie_id = movie_actor_data["movie_id"]
-        sqlite_actor_name = movie_actor_data["name"].replace("'", "''")
         pg_film_work_id = get_data_from_pg(
-            f"SELECT id FROM film_work WHERE old_id = '{sqlite_movie_id}'"
+            "SELECT id FROM film_work WHERE old_id = '%s'" % sqlite_movie_id
         )
-        pg_actor_id = get_data_from_pg(
-            f"SELECT id FROM person WHERE name = '{sqlite_actor_name}'"
+        pg_actor_id = get_data_from_pg_with_data(
+            "SELECT id FROM person WHERE name = %(ma)s",
+            {"ma": movie_actor_data["name"]},
         )
         if pg_actor_id and pg_film_work_id:
             person_film_work.append(
@@ -180,7 +186,7 @@ def insert_writers_into_person_and_person_film_work():
     for writer in writers_data:
         query_name = writer["name"].replace("'", "''")
         person_exists = get_data_from_pg(
-            f"SELECT * FROM person WHERE name = '{query_name}'"
+            "SELECT * FROM person WHERE name = '%s'" % query_name
         )
         if not person_exists:
             writers.append((str(uuid.uuid4()), writer["name"]))
@@ -192,12 +198,12 @@ def insert_writers_into_person_and_person_film_work():
     person_film_work = []
     for movie_writer_data in movie_writers_data:
         sqlite_movie_id = movie_writer_data["movie_id"]
-        sqlite_writer_name = movie_writer_data["name"].replace("'", "''")
-        pg_film_work_id = get_data_from_pg(
-            f"SELECT id FROM film_work WHERE old_id = '{sqlite_movie_id}'"
+        pg_film_work_id = get_data_from_pg_with_data(
+            "SELECT id FROM film_work WHERE old_id = %(mi)s", {"mi": sqlite_movie_id}
         )
-        pg_writer_id = get_data_from_pg(
-            f"SELECT id FROM person WHERE name = '{sqlite_writer_name}'"
+        pg_writer_id = get_data_from_pg_with_data(
+            "SELECT id FROM person WHERE name = %(mw)s",
+            {"mw": movie_writer_data["name"]},
         )
         if pg_writer_id and pg_film_work_id:
             person_film_work.append(
@@ -237,14 +243,16 @@ def tests():
 
 
 if __name__ == "__main__":
-    create_database_and_tables(create_queries)
-    insert_film_works_and_directors()
-    insert_genre_and_genre_film_work()
-    insert_actors_into_person_and_person_film_work()
-    insert_writers_into_person_and_person_film_work()
-    drop_old_id_columns()
-    tests()
-
-
-CONN_SQLITE.close()
-CONN_PG.close()
+    try:
+        create_database_and_tables(create_queries)
+        insert_film_works_and_directors()
+        insert_genre_and_genre_film_work()
+        insert_actors_into_person_and_person_film_work()
+        insert_writers_into_person_and_person_film_work()
+        drop_old_id_columns()
+        tests()
+    except:
+        logging.error("Data transfer failed", exc_info=True)
+    finally:
+        CONN_SQLITE.close()
+        CONN_PG.close()
