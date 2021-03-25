@@ -111,5 +111,4 @@ def make_db_pretty():
 
 if __name__ == "__main__":
     make_db_pretty()
-
-CONN_SQLITE.close()
+    CONN_SQLITE.close()

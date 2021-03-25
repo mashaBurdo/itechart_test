@@ -83,7 +83,8 @@ def store_movies(es_obj):
     # print(film_works_data[0])
     for film_work in film_works_data:
 
-        film_work["imdb_rating"] = float(film_work["imdb_rating"])
+        if film_work["imdb_rating"]:
+            film_work["imdb_rating"] = float(film_work["imdb_rating"])
         person_query = f'SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=\'{film_work["id"]}\''
         person_data = get_data_from_pg(person_query)
         film_work["actors"] = [{"id": a["id"], "name": a["name"]} for a in person_data if a["role"] == "Actor"]
@@ -117,4 +118,4 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
     es = connect_elasticrearch(ES_HOST)
     create_index(es)
-    store_movies(es)
+    store_movies(es) # this
