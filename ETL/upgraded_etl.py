@@ -32,7 +32,7 @@
 
 import logging
 import time
-
+from math import  ceil
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import psycopg2
@@ -52,7 +52,11 @@ def connect_elasticrearch(hostname: str):
         raise Exception(str(e))
 
 
-def create_index(es_object, index_name=ES_INDEX_NAME):
+ES_OBJ = connect_elasticrearch(ES_HOST)
+
+
+@backoff()
+def create_index(es_object=ES_OBJ, index_name=ES_INDEX_NAME):
     created = False
     index = ES_INDEX_SCHEMA
     try:
@@ -68,7 +72,6 @@ def create_index(es_object, index_name=ES_INDEX_NAME):
         return created
 
 
-# @backoff()
 def get_data_from_pg(query, conn_pg=CONN_PG):
     with conn_pg.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(query)
@@ -83,9 +86,15 @@ def get_data_from_pg_with_data(query, data, conn_pg=CONN_PG):
         return [dict(row) for row in rows]
 
 
-def get_data():
-    film_works_data = get_data_from_pg(
-        "SELECT id, rating imdb_rating, title, description FROM film_work"
+@backoff()
+def get_film_number():
+    return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
+
+
+@backoff()
+def get_data(limit, ind):
+    film_works_data = get_data_from_pg_with_data(
+        "SELECT id, rating imdb_rating, title, description FROM film_work LIMIT %(l)s OFFSET %(o)s", {"l": limit, "o": limit * ind}
     )
 
     for film_work in film_works_data:
@@ -94,7 +103,7 @@ def get_data():
             film_work["imdb_rating"] = float(film_work["imdb_rating"])
 
         person_query = 'SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=%(fw)s'
-        person_data = get_data_from_pg_with_data(person_query, {"fw" :film_work["id"]})
+        person_data = get_data_from_pg_with_data(person_query, {"fw": film_work["id"]})
         film_work["actors"] = [{"id": a["id"], "name": a["name"]} for a in person_data if a["role"] == "Actor"]
         actors_names = [a["name"] for a in person_data if a["role"] == "Actor"]
         film_work["actors_names"] = ', '.join(map(str, actors_names))
@@ -110,10 +119,12 @@ def get_data():
     return film_works_data
 
 
-def store_record(elastic_object, record, index_name=ES_INDEX_NAME):
+@backoff()
+def store_record(record, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
     is_stored = True
     try:
         bulk(elastic_object, record, chunk_size=1000, index=index_name)
+        print('Stored')
     except Exception as ex:
         print("Error in indexing data")
         print(str(ex))
@@ -123,7 +134,13 @@ def store_record(elastic_object, record, index_name=ES_INDEX_NAME):
 
 
 if __name__ == "__main__":
-    es = connect_elasticrearch(ES_HOST)
-    create_index(es)
-    data = get_data()
-    store_record(es, data)
+    create_index()
+
+    limit = 100
+    film_number = get_film_number()
+    bulk_number = ceil(film_number/limit)
+
+    for i in range(bulk_number):
+        data = get_data(limit, i)
+        store_record(data)
+
