@@ -1,6 +1,6 @@
 from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import F, Q, Case, Value, When, CharField
 from django.http import JsonResponse
 from django.views.generic.list import BaseListView
 from movies.models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
@@ -21,7 +21,7 @@ class Movies(BaseListView):
 
     def get_queryset(self):
         film_works = FilmWork.objects.values(
-            "id", "title", "description", "rating", "type"
+            "id", "title", "description", "rating"
         ).annotate(
             creation_date=F("created_at"),
             genres=ArrayAgg("genres__name", distinct=True),
@@ -40,14 +40,17 @@ class Movies(BaseListView):
                 distinct=True,
                 filter=Q(persons__personfilmwork__role="Director"),
             ),
+            type=Case(
+                When(type="null", then=Value("")),
+                default=Value(""),
+                output_field=CharField(),
+            ),
         )
-        for film in film_works:
-            film["type"] = str(film["type"])
         return film_works
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(Movies, self).get_context_data(**kwargs)
-        page = context["page_obj"].number
+    def get_context_data(self, object_list=None, **kwargs):
+        default_context = super(Movies, self).get_context_data(**kwargs)
+        page = default_context["page_obj"].number
         paginator = Paginator(self.get_queryset(), self.paginate_by)
         prev_page = (
             paginator.page(page).previous_page_number()
@@ -83,7 +86,7 @@ class MovieByID(BaseListView):
         try:
             film = (
                 FilmWork.objects.filter(id=film_uuid)
-                .values("id", "title", "description", "rating", "type")
+                .values("id", "title", "description", "rating")
                 .annotate(
                     creation_date=F("created_at"),
                     genres=ArrayAgg("genres__name", distinct=True),
@@ -102,6 +105,11 @@ class MovieByID(BaseListView):
                         distinct=True,
                         filter=Q(persons__personfilmwork__role="Director"),
                     ),
+                    type=Case(
+                        When(type="null", then=Value("")),
+                        default=Value(""),
+                        output_field=CharField(),
+                    ),
                 )
                 .first()
             )
@@ -109,10 +117,9 @@ class MovieByID(BaseListView):
             return {"e": str(e)}
         if not film:
             return {}
-        film["type"] = str(film["type"])
         return film
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, object_list=None, **kwargs):
         context = self.get_queryset()
         return context
 
