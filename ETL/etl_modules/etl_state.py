@@ -34,16 +34,21 @@ class JsonFileStorage:
 
     @backoff()
     def save_state(self, state):
-        with open(self.file_path, "r+") as file:
-            # data = {}
+        data = {}
+        with open(self.file_path, "r") as file:
             try:
                 data = json.load(file)
+                print('TYYYYPE', type(data))
+
             except json.JSONDecodeError:
                 data = {}
-            data.update(state)
-            file.seek(0)
+
+        with open(self.file_path, "w") as file:
+            key, value = list(state.items())[0]
+            data[key] = value
             json.dump(data, file)
             return state
+
 
     @backoff()
     def clear_state(self):
@@ -122,7 +127,7 @@ def test_redis():
     print("REDIS RETRIEVE_STATE after", r.retrieve_state())
 
 
-if __name__ == "__main__":
-    test_json()
-    test_state()
+# if __name__ == "__main__":
+    # test_json()
+    # test_state()
 #     test_redis()

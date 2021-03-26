@@ -118,9 +118,11 @@ def get_data(limit, ind):
         film_work["genre"] = [g['name'] for g in genre_data]
 
 
-    last_recorded_id = film_works_data[len(film_works_data)-1]["id"]
+    # last_recorded_id = film_works_data[len(film_works_data)-1]["id"]
+    last_recorded_id = film_works_data
     postgres_state = State()
     postgres_state.set_state("postgres_last_record", last_recorded_id)
+    # print(postgres_state.state)
 
     return film_works_data
 
@@ -132,10 +134,11 @@ def store_record(record, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
         bulk(elastic_object, record, chunk_size=1000, index=index_name)
         print('Stored')
 
-        last_recorded_id = record[len(record)-1]["id"]
+        # last_recorded_id = record
+        last_recorded_id = record[len(record) - 1]["id"]
         elastic_state = State()
         elastic_state.set_state("elatic_last_record", last_recorded_id)
-        print(elastic_state.state)
+        # print(elastic_state.state)
     except Exception as ex:
         print("Error in indexing data")
         print(str(ex))
@@ -156,14 +159,14 @@ if __name__ == "__main__":
     if not initial_state.state:
         for i in range(bulk_number):
             data = get_data(limit, i)
-            time.sleep(3)
+            # time.sleep(3)
             store_record(data)
-            time.sleep(1)
+            # time.sleep(1)
     else:
         pg_state = initial_state.get_state("postgres_last_record")
         es_state = initial_state.get_state("elastic_last_record")
 
-        print(pg_state, es_state)
+        # print(pg_state, es_state)
 
         if pg_state == es_state:
             print('Start from getting fresh data from pg')
@@ -173,6 +176,9 @@ if __name__ == "__main__":
 
 
     final_state = State()
-    final_state.clear_state()
+    print(final_state.get_state("postgres_last_record"))
+    print(final_state.get_state("elastic_last_record"))
+
+    # final_state.clear_state()
     print(final_state.state)
 
