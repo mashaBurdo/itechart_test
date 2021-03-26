@@ -60,13 +60,30 @@ services:
     networks:
       some_network:
 
+#  redis:
+#    container_name: redis
+#    image: redis:3.2.0
+#    ports:
+#      - 6379:6379
+#    volumes:
+#      - ./redisdata:/redistata
+
   redis:
     container_name: redis
-    image: redis:3.2.0
-    ports:
-      - 6379:6379
+    image: redis:4.0-alpine
+    command:
+      - 'redis-server'
+      - '--loglevel ${REDIS_LOGLEVEL:-warning}'
+      - '--databases 2'
+      - '--save 900 1'
+      - '--save 300 10'
+      - '--save 60 10000'
+      - '--maxmemory ${REDIS_MAXMEM:-50mb}'
+      - '--maxmemory-policy ${REDIS_POLICY:-noeviction}'
     volumes:
       - ./redisdata:/redistata
+    ports:
+      - "6379:6379"
 
 volumes:
   redisdata:

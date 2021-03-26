@@ -121,11 +121,11 @@ def test_state():
 def test_redis():
     r = RedisStorage()
     print("REDIS RETRIEVE_STATE before", r.retrieve_state())
-    print("REDIS SAVE_STATE", r.save_state({"rysssdddd": "dis"}))
+    print("REDIS SAVE_STATE", r.save_state({"lol": "kek"}))
     print("REDIS RETRIEVE_STATE after", r.retrieve_state())
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # test_json()
     # test_state()
-#     test_redis()
+    test_redis()

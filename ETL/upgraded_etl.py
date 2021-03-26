@@ -142,7 +142,6 @@ def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
     is_stored = True
     try:
         bulk(elastic_object, record, chunk_size=1000, index=index_name)
-        logging.info("Stored")
 
         last_record = record
         elastic_state = State()
@@ -185,9 +184,7 @@ if __name__ == "__main__":
     if not initial_state.state:
         for i in range(bulk_number):
             data = get_data(limit, i)
-            time.sleep(1)
             store_record(data, i)
-            time.sleep(1)
     else:
         continue_from_state(initial_state, bulk_number)
 
