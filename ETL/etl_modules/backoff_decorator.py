@@ -1,5 +1,5 @@
 import time
-import  logging
+import logging
 from functools import wraps
 import psycopg2
 

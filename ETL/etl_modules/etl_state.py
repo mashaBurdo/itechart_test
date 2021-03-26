@@ -17,40 +17,6 @@ def dict_to_redis_hset(r, hkey, dict_to_store):
     return all([r.hset(hkey, k, v) for k, v in dict_to_store.items()])
 
 
-class State:
-    """Implements state recovery when app starts, if such state existed"""
-
-    def __init__(self):
-        self.storage = JsonFileStorage()
-        self.state = self.retrieve_state()
-
-    def retrieve_state(self):
-        state = self.storage.retrieve_state()
-        return state
-
-    def set_state(self, key, value):
-        self.state = {key: value}
-        self.storage.save_state(self.state)
-        return self.state
-
-    def get_state(self, key):
-        value = self.state.get(key)
-        return value
-
-
-#
-# class Storage:
-#     def __init__(self):
-#         pass
-#
-#     def retrieve_state(self):
-#         """Gets state of permanent storage. Returns empty dict if storage is empty"""
-#         pass
-#
-#     def save_state(self):
-#         pass
-
-
 class JsonFileStorage:
     """Save data in JSON to file_path and load data from file"""
 
@@ -79,6 +45,13 @@ class JsonFileStorage:
             json.dump(data, file)
             return state
 
+    @backoff()
+    def clear_state(self):
+        with open(self.file_path, "w") as file:
+            data = {}
+            json.dump(data, file)
+            return data
+
 
 class RedisStorage:
     def __init__(self, redis_adapter=Redis(host=u'localhost', port=6379)):
@@ -95,7 +68,32 @@ class RedisStorage:
     @backoff()
     def save_state(self, state):
         dict_to_redis_hset(self.redis_adapter, "Storage", state)
+
+
+class State:
+    """Implements state recovery when app starts, if such state existed"""
+
+    def __init__(self, storage=JsonFileStorage()):
+        self.storage = storage
+        self.state = self.retrieve_state()
+
+    def retrieve_state(self):
+        state = self.storage.retrieve_state()
         return state
+
+    def set_state(self, key, value):
+        self.state = {key: value}
+        self.storage.save_state(self.state)
+        return self.state
+
+    def get_state(self, key):
+        value = self.state.get(key)
+        return value
+
+    def clear_state(self):
+        value = self.storage.clear_state()
+        self.state = self.storage.retrieve_state()
+        return value
 
 
 def test_json():
@@ -103,6 +101,8 @@ def test_json():
     print("JSON RETRIEVE_STATE before", json_st.retrieve_state())
     print("JSON SAVE_STATE", json_st.save_state({"ol": "kek"}))
     print("JSON RETRIEVE_STATE after", json_st.retrieve_state())
+    print("JSON CLEAR_STATE", json_st.clear_state())
+    print("JSON RETRIEVE_STATE cleared", json_st.retrieve_state())
 
 
 def test_state():
@@ -110,6 +110,9 @@ def test_state():
     print("SET_STATE", my_state.set_state("he", "ha"))
     print("STATE", my_state.state)
     print("GET_STATE", my_state.get_state("he"))
+    print("CLEAR_STATE", my_state.clear_state())
+    print("GET_STATE", my_state.get_state("he"))
+    print("STATE", my_state.state)
 
 
 def test_redis():
@@ -120,6 +123,6 @@ def test_redis():
 
 
 if __name__ == "__main__":
-    test_state()
     test_json()
-    test_redis()
+    test_state()
+#     test_redis()

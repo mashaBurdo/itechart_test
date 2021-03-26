@@ -39,7 +39,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 from etl_conrstants import ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA, CONN_PG
-from etl_modules.backoff_decorator import backoff
+from etl_modules.etl_state import State
+from backoff_decorator import backoff
 
 
 @backoff()
@@ -116,6 +117,11 @@ def get_data(limit, ind):
         genre_data = get_data_from_pg_with_data(genre_query, {"fw": film_work["id"]})
         film_work["genre"] = [g['name'] for g in genre_data]
 
+
+    last_recorded_id = film_works_data[len(film_works_data)-1]["id"]
+    postgres_state = State()
+    postgres_state.set_state("postgres_last_record", last_recorded_id)
+
     return film_works_data
 
 
@@ -125,6 +131,11 @@ def store_record(record, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
     try:
         bulk(elastic_object, record, chunk_size=1000, index=index_name)
         print('Stored')
+
+        last_recorded_id = record[len(record)-1]["id"]
+        elastic_state = State()
+        elastic_state.set_state("elatic_last_record", last_recorded_id)
+        print(elastic_state.state)
     except Exception as ex:
         print("Error in indexing data")
         print(str(ex))
@@ -140,7 +151,28 @@ if __name__ == "__main__":
     film_number = get_film_number()
     bulk_number = ceil(film_number/limit)
 
-    for i in range(bulk_number):
-        data = get_data(limit, i)
-        store_record(data)
+    initial_state = State()
+
+    if not initial_state.state:
+        for i in range(bulk_number):
+            data = get_data(limit, i)
+            time.sleep(3)
+            store_record(data)
+            time.sleep(1)
+    else:
+        pg_state = initial_state.get_state("postgres_last_record")
+        es_state = initial_state.get_state("elastic_last_record")
+
+        print(pg_state, es_state)
+
+        if pg_state == es_state:
+            print('Start from getting fresh data from pg')
+        else:
+            print('Start with storage data to es')
+
+
+
+    final_state = State()
+    final_state.clear_state()
+    print(final_state.state)
 
