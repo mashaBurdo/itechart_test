@@ -32,15 +32,16 @@
 
 import logging
 import time
-from math import  ceil
+from math import ceil
+
+import psycopg2
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
-import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from etl_conrstants import ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA, CONN_PG
-from etl_modules.etl_state import State
 from backoff_decorator import backoff
+from etl_conrstants import CONN_PG, ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA
+from etl_modules.etl_state import State
 
 
 @backoff()
@@ -95,7 +96,8 @@ def get_film_number():
 @backoff()
 def get_data(limit, ind):
     film_works_data = get_data_from_pg_with_data(
-        "SELECT id, rating imdb_rating, title, description FROM film_work LIMIT %(l)s OFFSET %(o)s", {"l": limit, "o": limit * ind}
+        "SELECT id, rating imdb_rating, title, description FROM film_work LIMIT %(l)s OFFSET %(o)s",
+        {"l": limit, "o": limit * ind},
     )
 
     for film_work in film_works_data:
@@ -103,42 +105,49 @@ def get_data(limit, ind):
         if film_work["imdb_rating"]:
             film_work["imdb_rating"] = float(film_work["imdb_rating"])
 
-        person_query = 'SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=%(fw)s'
+        person_query = "SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=%(fw)s"
         person_data = get_data_from_pg_with_data(person_query, {"fw": film_work["id"]})
-        film_work["actors"] = [{"id": a["id"], "name": a["name"]} for a in person_data if a["role"] == "Actor"]
+        film_work["actors"] = [
+            {"id": a["id"], "name": a["name"]}
+            for a in person_data
+            if a["role"] == "Actor"
+        ]
         actors_names = [a["name"] for a in person_data if a["role"] == "Actor"]
-        film_work["actors_names"] = ', '.join(map(str, actors_names))
-        film_work["writers"] = [{"id": a["id"], "name": a["name"]} for a in person_data if a["role"] == "Writer"]
+        film_work["actors_names"] = ", ".join(map(str, actors_names))
+        film_work["writers"] = [
+            {"id": a["id"], "name": a["name"]}
+            for a in person_data
+            if a["role"] == "Writer"
+        ]
         writers_names = [a["name"] for a in person_data if a["role"] == "Writer"]
-        film_work["writers_names"] = ', '.join(map(str, writers_names))
-        film_work["director"] = [a["name"] for a in person_data if a["role"] == "Director"]
+        film_work["writers_names"] = ", ".join(map(str, writers_names))
+        film_work["director"] = [
+            a["name"] for a in person_data if a["role"] == "Director"
+        ]
 
-        genre_query = 'SELECT g.name FROM genre_film_work gf JOIN genre g ON gf.genre_id = g.id WHERE film_work_id=%(fw)s'
+        genre_query = "SELECT g.name FROM genre_film_work gf JOIN genre g ON gf.genre_id = g.id WHERE film_work_id=%(fw)s"
         genre_data = get_data_from_pg_with_data(genre_query, {"fw": film_work["id"]})
-        film_work["genre"] = [g['name'] for g in genre_data]
+        film_work["genre"] = [g["name"] for g in genre_data]
 
-
-    # last_recorded_id = film_works_data[len(film_works_data)-1]["id"]
-    last_recorded_id = film_works_data
+    last_record = film_works_data
     postgres_state = State()
-    postgres_state.set_state("postgres_last_record", last_recorded_id)
-    # print(postgres_state.state)
+    postgres_state.set_state("postgres_last_record", last_record)
+    postgres_state.set_state("postgres_ind", ind)
 
     return film_works_data
 
 
 @backoff()
-def store_record(record, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
+def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
     is_stored = True
     try:
         bulk(elastic_object, record, chunk_size=1000, index=index_name)
-        print('Stored')
+        logging.info("Stored")
 
-        # last_recorded_id = record
-        last_recorded_id = record[len(record) - 1]["id"]
+        last_record = record
         elastic_state = State()
-        elastic_state.set_state("elatic_last_record", last_recorded_id)
-        # print(elastic_state.state)
+        elastic_state.set_state("elastic_last_record", last_record)
+        elastic_state.set_state("elastic_ind", ind)
     except Exception as ex:
         print("Error in indexing data")
         print(str(ex))
@@ -148,37 +157,37 @@ def store_record(record, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
 
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.INFO)
     create_index()
 
     limit = 100
     film_number = get_film_number()
-    bulk_number = ceil(film_number/limit)
+    bulk_number = ceil(film_number / limit)
 
     initial_state = State()
 
     if not initial_state.state:
         for i in range(bulk_number):
             data = get_data(limit, i)
-            # time.sleep(3)
-            store_record(data)
-            # time.sleep(1)
+            time.sleep(1)
+            store_record(data, i)
+            time.sleep(1)
     else:
-        pg_state = initial_state.get_state("postgres_last_record")
-        es_state = initial_state.get_state("elastic_last_record")
+        pg_ind = initial_state.get_state("postgres_ind")
+        es_ind = initial_state.get_state("elastic_ind")
 
-        # print(pg_state, es_state)
-
-        if pg_state == es_state:
-            print('Start from getting fresh data from pg')
+        if pg_ind != es_ind:
+            logging.info("Start with storage data to es")
+            store_record(initial_state.get_state("postgres_last_record"), pg_ind)
         else:
-            print('Start with storage data to es')
+            logging.info("Start from getting fresh data from pg")
 
+        for i in range(pg_ind + 1, bulk_number):
+            data = get_data(limit, i)
+            store_record(data, i)
 
+        pg_ind = initial_state.get_state("postgres_ind")
+        es_ind = initial_state.get_state("elastic_ind")
 
     final_state = State()
-    print(final_state.get_state("postgres_last_record"))
-    print(final_state.get_state("elastic_last_record"))
-
-    # final_state.clear_state()
-    print(final_state.state)
-
+    final_state.clear_state()

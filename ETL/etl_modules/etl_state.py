@@ -38,8 +38,6 @@ class JsonFileStorage:
         with open(self.file_path, "r") as file:
             try:
                 data = json.load(file)
-                print('TYYYYPE', type(data))
-
             except json.JSONDecodeError:
                 data = {}
 
