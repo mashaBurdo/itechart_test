@@ -156,6 +156,22 @@ def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
         return is_stored
 
 
+@backoff()
+def continue_from_state(initial_state, bulk_number):
+    pg_ind = initial_state.get_state("postgres_ind")
+    es_ind = initial_state.get_state("elastic_ind")
+
+    if pg_ind != es_ind:
+        logging.info("Start with storage data to es")
+        store_record(initial_state.get_state("postgres_last_record"), pg_ind)
+    else:
+        logging.info("Start from getting fresh data from pg")
+
+    for i in range(pg_ind + 1, bulk_number):
+        data = get_data(limit, i)
+        store_record(data, i)
+
+
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
     create_index()
@@ -173,21 +189,7 @@ if __name__ == "__main__":
             store_record(data, i)
             time.sleep(1)
     else:
-        pg_ind = initial_state.get_state("postgres_ind")
-        es_ind = initial_state.get_state("elastic_ind")
-
-        if pg_ind != es_ind:
-            logging.info("Start with storage data to es")
-            store_record(initial_state.get_state("postgres_last_record"), pg_ind)
-        else:
-            logging.info("Start from getting fresh data from pg")
-
-        for i in range(pg_ind + 1, bulk_number):
-            data = get_data(limit, i)
-            store_record(data, i)
-
-        pg_ind = initial_state.get_state("postgres_ind")
-        es_ind = initial_state.get_state("elastic_ind")
+        continue_from_state(initial_state, bulk_number)
 
     final_state = State()
     final_state.clear_state()
