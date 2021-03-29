@@ -32,15 +32,17 @@ services:
       some_network:
 
   db:
+    restart: always
     image: postgres
     volumes:
-    - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
     environment:
-    - POSTGRES_PASSWORD=123
-    - POSTGRES_USER=postgres
-    - POSTGRES_DB=movies
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: movies
+#      POSTGRES_HOST: 'localhost'
     ports:
-    - 5432:5432
+      - "5432:5432"
     networks:
       some_network:
 
@@ -60,14 +62,6 @@ services:
     networks:
       some_network:
 
-#  redis:
-#    container_name: redis
-#    image: redis:3.2.0
-#    ports:
-#      - 6379:6379
-#    volumes:
-#      - ./redisdata:/redistata
-
   redis:
     container_name: redis
     image: redis:4.0-alpine
@@ -86,10 +80,10 @@ services:
       - "6379:6379"
 
 volumes:
+  postgres_data:
   redisdata:
   code:
   static:
-  postgres_data:
 
 networks:
   some_network:

@@ -85,8 +85,7 @@ class MovieByID(BaseListView):
         film = {}
         try:
             film = (
-                FilmWork.objects.filter(id=film_uuid)
-                .values("id", "title", "description", "rating")
+                FilmWork.objects.values("id", "title", "description", "rating")
                 .annotate(
                     creation_date=F("created_at"),
                     genres=ArrayAgg("genres__name", distinct=True),
@@ -110,8 +109,7 @@ class MovieByID(BaseListView):
                         default=Value(""),
                         output_field=CharField(),
                     ),
-                )
-                .first()
+                ).get(id=film_uuid)
             )
         except Exception as e:
             return {"e": str(e)}

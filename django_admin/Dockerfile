@@ -11,4 +11,6 @@ WORKDIR /app
 
 CMD ["python", "manage.py", "collectstatic", "--no-input"]
 
+#CMD ["python", "manage.py", "runserver"]
+
 CMD ["gunicorn" , "-b", "0.0.0.0:8000", "django_project.wsgi:application", "--reload"]

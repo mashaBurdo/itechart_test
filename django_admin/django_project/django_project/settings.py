@@ -83,10 +83,22 @@ DATABASES = {
         # 'HOST': os.environ.get('POSTGRES_HOST', default='localhost'), #shell
         # 'HOST': '127.0.0.1', # shell
         'HOST': 'db', #  admin
-        # # 'HOST': '0.0.0.0', #shell
+        # 'HOST': '0.0.0.0', #shell
         'PORT': '5432',
     }
 }
+
+
+# DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'NAME': os.environ.get('POSTGRES_DB', default='movies'),
+#             'USER': os.environ.get('POSTGRES_USER', default='postgres'),
+#             'PASSWORD': os.environ.get('POSTGRES_PASSWORD', default='123'),
+#             'HOST': os.environ.get('POSTGRES_HOST', default='localhost'),
+#             'PORT': "5432"
+#         }
+# }
 
 
 # Password validation
@@ -126,5 +138,5 @@ STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 
 INTERNAL_IPS = [
-    '127.0.0.1',
+    '0.0.0.0',
 ]
