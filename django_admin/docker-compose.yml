@@ -17,8 +17,6 @@ services:
     volumes:
       - ./django_project:/app
       - static:/static
-#    env_file:
-#      - .env
     build:
       context: .
     ports:
@@ -46,7 +44,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: movies
-#      POSTGRES_HOST: 'localhost'
     ports:
       - "5432:5432"
     networks:
