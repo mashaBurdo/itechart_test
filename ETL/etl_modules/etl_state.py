@@ -13,10 +13,6 @@ from backoff_decorator import backoff
 FILE_PATH = "state.json"
 
 
-def dict_to_redis_hset(r, hkey, dict_to_store):
-    return all([r.hset(hkey, k, v) for k, v in dict_to_store.items()])
-
-
 class JsonFileStorage:
     """Save data in JSON to file_path and load data from file"""
 
@@ -63,11 +59,9 @@ class RedisStorage:
     @backoff()
     def retrieve_state(self):
         try:
-            all = self.redis_adapter.hgetall()
-            print('QQ', all)
+            data = self.redis_adapter.hgetall("Storage")
 
-            # data = {key: json.loads(value) for key, value in data.items()}
-            data = json.loads(self.redis_adapter.get('lol').decode('utf-8'))
+            data = {key.decode('utf-8'): json.loads(value) for key, value in data.items()}
             if data:
                 return data
             else:
@@ -77,10 +71,9 @@ class RedisStorage:
 
     @backoff()
     def save_state(self, state):
-        # dict_to_redis_hset(self.redis_adapter, "Storage", state)
         key, value = list(state.items())[0]
         json_state = json.dumps(value)
-        self.redis_adapter.set(key, json_state)
+        self.redis_adapter.hset("Storage", key, json_state)
         return state
 
     @backoff()
