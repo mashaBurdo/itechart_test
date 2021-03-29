@@ -119,9 +119,13 @@ USE_L10N = True
 USE_TZ = True
 
 
-STATIC_ROOT = 'staticfiles'
+# STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 
 INTERNAL_IPS = [
-    '0.0.0.0',
+    '127.0.0.1',
 ]
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+}
