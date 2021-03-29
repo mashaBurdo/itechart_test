@@ -31,7 +31,6 @@
 Решение задачи залейте в папку postgres_to_es вашего репозитория."""
 
 import logging
-import time
 from math import ceil
 
 import psycopg2
@@ -39,9 +38,9 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from psycopg2.extras import RealDictCursor
 
-from backoff_decorator import backoff
 from etl_conrstants import CONN_PG, ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA
 from etl_modules.etl_state import State
+from etl_modules.backoff_decorator import backoff
 
 
 @backoff()

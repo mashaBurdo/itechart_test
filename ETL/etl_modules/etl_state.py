@@ -6,7 +6,7 @@
 5. After getting key-value pair it is saved to file
 """
 import json
-from redis import Redis
+from redis import StrictRedis
 from backoff_decorator import backoff
 
 
@@ -57,26 +57,42 @@ class JsonFileStorage:
 
 
 class RedisStorage:
-    def __init__(self, redis_adapter=Redis(host=u'localhost', port=6379)):
+    def __init__(self, redis_adapter=StrictRedis(host=u'localhost', port=6379, db=0)):
         self.redis_adapter = redis_adapter
 
     @backoff()
     def retrieve_state(self):
         try:
-            data = self.redis_adapter.hgetall("Storage")
-            return data
+            all = self.redis_adapter.hgetall()
+            print('QQ', all)
+
+            # data = {key: json.loads(value) for key, value in data.items()}
+            data = json.loads(self.redis_adapter.get('lol').decode('utf-8'))
+            if data:
+                return data
+            else:
+                return {}
         except:
             return {}
 
     @backoff()
     def save_state(self, state):
-        dict_to_redis_hset(self.redis_adapter, "Storage", state)
+        # dict_to_redis_hset(self.redis_adapter, "Storage", state)
+        key, value = list(state.items())[0]
+        json_state = json.dumps(value)
+        self.redis_adapter.set(key, json_state)
+        return state
+
+    @backoff()
+    def clear_state(self):
+        self.redis_adapter.flushdb()
+        return {}
 
 
 class State:
     """Implements state recovery when app starts, if such state existed"""
 
-    def __init__(self, storage=JsonFileStorage()):
+    def __init__(self, storage=RedisStorage()):
         self.storage = storage
         self.state = self.retrieve_state()
 
@@ -121,11 +137,13 @@ def test_state():
 def test_redis():
     r = RedisStorage()
     print("REDIS RETRIEVE_STATE before", r.retrieve_state())
-    print("REDIS SAVE_STATE", r.save_state({"lol": "kek"}))
+    print("REDIS SAVE_STATE", r.save_state({"lol": ['k', 'e', 'k']}))
     print("REDIS RETRIEVE_STATE after", r.retrieve_state())
+    print("REDIS CLEAR_STATE", r.clear_state())
+    print("REDIS RETRIEVE_STATE cleared", r.retrieve_state())
 
 
 if __name__ == "__main__":
     # test_json()
-    # test_state()
+    test_state()
     test_redis()

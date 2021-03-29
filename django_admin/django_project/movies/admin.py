@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
                            PersonFilmWork)
-
+Genre.objects.all()
 
 class PersonFilmWorkInline(admin.TabularInline):
     model = PersonFilmWork

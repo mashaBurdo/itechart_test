@@ -83,7 +83,7 @@ DATABASES = {
         # 'HOST': os.environ.get('POSTGRES_HOST', default='localhost'), #shell
         # 'HOST': '127.0.0.1', # shell
         'HOST': 'db', #  admin
-        # 'HOST': '0.0.0.0', #shell
+        # # 'HOST': '0.0.0.0', #shell
         'PORT': '5432',
     }
 }
