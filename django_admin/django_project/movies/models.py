@@ -6,6 +6,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 from model_utils.models import TimeStampedModel
+from django.db.models import F, Q, Case, Value, When, CharField
+
+from elasticsearch import Elasticsearch
+from django.contrib.postgres.aggregates.general import ArrayAgg
+
+from django.db.models.signals import post_save
 
 
 class Genre(models.Model):
@@ -72,6 +78,27 @@ class FilmWork(models.Model):
 
     def __str__(self):
         return self.title
+
+
+def post_film_work_save(sender, instance, **kwargs):
+    id = instance.id
+    film = (
+        FilmWork.objects.values("id", "title", "description", "rating").get(id=id)
+    )
+    record = {
+        "id": id,
+        "title": film["title"],
+        "imdb_rating": film["rating"],
+        "description": film["description"],
+    }
+    try:
+        es_obj = Elasticsearch(hosts=[{"host": "elasticsearch"}], retry_on_timeout=True)
+        es_obj.index(index="movies", body=record)
+    except:
+        es_obj = Elasticsearch(hosts=[{"host": "localhost"}], retry_on_timeout=True)
+        es_obj.index(index="movies", body=record)
+
+post_save.connect(post_film_work_save, FilmWork)
 
 
 class GenreFilmWork(models.Model):
