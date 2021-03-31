@@ -8,7 +8,6 @@ from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 from model_utils.models import TimeStampedModel
 
 
-
 class Genre(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_("name"), max_length=255)
@@ -62,8 +61,8 @@ class FilmWork(models.Model):
         _("rating"), validators=[MinValueValidator(0)], null=True, blank=True
     )
     type = models.TextField(_("type"), choices=Type.choices, default=Type.FILM)
-    genres = models.ManyToManyField(Genre, through='GenreFilmWork')
-    persons = models.ManyToManyField(Person, through='PersonFilmWork')
+    genres = models.ManyToManyField(Genre, through="GenreFilmWork")
+    persons = models.ManyToManyField(Person, through="PersonFilmWork")
 
     class Meta:
         db_table = "film_work"

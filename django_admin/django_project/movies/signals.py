@@ -1,8 +1,7 @@
+from django.db.models.signals import post_save, pre_delete
+from elasticsearch import Elasticsearch
 from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
                            PersonFilmWork)
-
-from elasticsearch import Elasticsearch
-from django.db.models.signals import post_save, pre_delete
 
 
 def post_film_work_save(sender, instance, **kwargs):

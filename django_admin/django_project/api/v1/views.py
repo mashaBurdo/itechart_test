@@ -1,9 +1,10 @@
 from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.core.paginator import Paginator
-from django.db.models import F, Q, Case, Value, When, CharField
+from django.db.models import Case, CharField, F, Q, Value, When
 from django.http import JsonResponse
 from django.views.generic.list import BaseListView
-from movies.models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
+from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
+                           PersonFilmWork)
 
 
 class LolKek(BaseListView):
@@ -109,7 +110,8 @@ class MovieByID(BaseListView):
                         default=Value(""),
                         output_field=CharField(),
                     ),
-                ).get(id=film_uuid)
+                )
+                .get(id=film_uuid)
             )
         except Exception as e:
             return {"e": str(e)}

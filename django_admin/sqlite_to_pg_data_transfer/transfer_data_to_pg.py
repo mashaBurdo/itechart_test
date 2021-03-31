@@ -3,9 +3,8 @@ import sqlite3
 import uuid
 
 import psycopg2
-from psycopg2.extras import RealDictCursor, execute_batch
-
 from pg_table_create_queries import create_queries
+from psycopg2.extras import RealDictCursor, execute_batch
 
 CONN_SQLITE = sqlite3.connect("db.sqlite")
 
