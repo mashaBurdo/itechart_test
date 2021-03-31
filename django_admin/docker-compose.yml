@@ -9,8 +9,6 @@ services:
     environment:
       - bootstrap.memory_lock=false
       - discovery.type=single-node
-    networks:
-      some_network:
 
   django_gunicorn:
     restart: always
@@ -32,8 +30,6 @@ services:
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: movies
       POSTGRES_HOST: db
-    networks:
-      some_network:
 
   db:
     restart: always
@@ -46,8 +42,6 @@ services:
       POSTGRES_DB: movies
     ports:
       - "5432:5432"
-    networks:
-      some_network:
 
   nginx:
     build: ./nginx
@@ -62,8 +56,6 @@ services:
       - elasticsearch
     links:
       - db:db
-    networks:
-      some_network:
 
   redis:
     container_name: redis
@@ -88,6 +80,3 @@ volumes:
   code:
   static:
 
-networks:
-  some_network:
-    driver: bridge

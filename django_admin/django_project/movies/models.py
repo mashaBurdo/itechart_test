@@ -8,6 +8,7 @@ from model_utils.fields import AutoCreatedField, AutoLastModifiedField
 from model_utils.models import TimeStampedModel
 
 
+
 class Genre(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(_("name"), max_length=255)
@@ -65,7 +66,6 @@ class FilmWork(models.Model):
     persons = models.ManyToManyField(Person, through='PersonFilmWork')
 
     class Meta:
-        # managed = False
         db_table = "film_work"
         verbose_name = _("film work")
         indexes = [models.Index(fields=["title"])]
