@@ -85,7 +85,7 @@ class RedisStorage:
 class State:
     """Implements state recovery when app starts, if such state existed"""
 
-    def __init__(self, storage=RedisStorage()):
+    def __init__(self, storage=JsonFileStorage()):
         self.storage = storage
         self.state = self.retrieve_state()
 
@@ -136,7 +136,7 @@ def test_redis():
     print("REDIS RETRIEVE_STATE cleared", r.retrieve_state())
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # test_json()
-    test_state()
-    test_redis()
+    # test_state()
+    # test_redis()

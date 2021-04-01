@@ -184,8 +184,11 @@ if __name__ == "__main__":
         for i in range(bulk_number):
             data = get_data(limit, i)
             store_record(data, i)
+    elif initial_state.get_state("Done"):
+        logging.info("Data were already transferred")
     else:
         continue_from_state(initial_state, bulk_number)
 
     final_state = State()
     final_state.clear_state()
+    final_state.set_state("Done", True)
