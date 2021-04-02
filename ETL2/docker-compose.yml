@@ -1,0 +1,69 @@
+version: '3.7'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.7.0
+    build: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - bootstrap.memory_lock=false
+      - discovery.type=single-node
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9200" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+#    networks:
+#      some_network:
+
+  indexer:
+    build: indexer
+    volumes:
+      - ./indexer:/app
+    depends_on:
+      - elasticsearch
+    command: ["python", "ETL_mechanism.py"]
+    tty: true
+    networks:
+      flask_and_etl1:
+        ipv4_address: 172.28.0.3
+
+  db:
+    restart: always
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: movies
+    ports:
+      - "5432:5432"
+#    networks:
+#      some_network:
+
+  redis:
+    container_name: redis
+    image: redis:4.0-alpine
+    command:
+      - 'redis-server'
+      - '--loglevel ${REDIS_LOGLEVEL:-warning}'
+      - '--databases 2'
+      - '--save 900 1'
+      - '--save 300 10'
+      - '--save 60 10000'
+      - '--maxmemory ${REDIS_MAXMEM:-50mb}'
+      - '--maxmemory-policy ${REDIS_POLICY:-noeviction}'
+    volumes:
+      - ./redisdata:/redistata
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  redisdata:
+
+#networks:
+#  some_network:
+#    driver: bridge

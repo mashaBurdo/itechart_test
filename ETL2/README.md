@@ -1,7 +1,3 @@
-Create a network if it's not created:
-
-    docker network create --gateway 172.28.0.1 --subnet 172.28.0.0/16 flask_and_etl1
-
 To start docker container execute the following commands:
 
     docker-compose build

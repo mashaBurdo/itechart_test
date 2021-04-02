@@ -20,8 +20,8 @@ services:
 
   indexer:
     build: indexer
-    volumes:
-      - ./indexer:/app
+#    volumes:
+#      - ./indexer:/app
     depends_on:
       - elasticsearch
     command: ["python", "ETL_mechanism.py"]
