@@ -13,9 +13,8 @@ CONN_PG = psycopg2.connect(
     dbname="movies",
     user="postgres",
     password="123",
-    host="localhost",
+    host="",
     port=5432,
-    # options="-c search_path=content",
 )
 
 

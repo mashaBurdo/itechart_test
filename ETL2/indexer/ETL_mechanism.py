@@ -42,8 +42,8 @@ from etl_conrstants import CONN_PG, ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA
 from etl_modules.etl_state import State
 from etl_modules.backoff_decorator import backoff
 
-
-@backoff()
+#
+# @backoff()
 def connect_elasticrearch(hostname: str):
     try:
         es_obj = Elasticsearch(hosts=[{"host": hostname}], retry_on_timeout=True)
@@ -56,7 +56,7 @@ def connect_elasticrearch(hostname: str):
 ES_OBJ = connect_elasticrearch(ES_HOST)
 
 
-@backoff()
+# @backoff()
 def create_index(es_object=ES_OBJ, index_name=ES_INDEX_NAME):
     created = False
     index = ES_INDEX_SCHEMA
@@ -87,12 +87,14 @@ def get_data_from_pg_with_data(query, data, conn_pg=CONN_PG):
         return [dict(row) for row in rows]
 
 
-@backoff()
+# @backoff()
 def get_film_number():
-    return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
+    film_number = get_data_from_pg("SELECT COUNT(*) FROM film_work")
+    print(film_number)
+    # return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
 
 
-@backoff()
+# @backoff()
 def get_data(limit, ind):
     film_works_data = get_data_from_pg_with_data(
         "SELECT id, rating imdb_rating, title, description FROM film_work LIMIT %(l)s OFFSET %(o)s",
@@ -136,7 +138,7 @@ def get_data(limit, ind):
     return film_works_data
 
 
-@backoff()
+# @backoff()
 def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
     is_stored = True
     try:
@@ -154,7 +156,7 @@ def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
         return is_stored
 
 
-@backoff()
+# @backoff()
 def continue_from_state(initial_state, bulk_number):
     pg_ind = initial_state.get_state("postgres_ind")
     es_ind = initial_state.get_state("elastic_ind")
@@ -176,6 +178,7 @@ if __name__ == "__main__":
 
     limit = 100
     film_number = get_film_number()
+    film_number = film_number if film_number else 0
     bulk_number = ceil(film_number / limit)
 
     initial_state = State()

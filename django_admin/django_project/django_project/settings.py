@@ -78,10 +78,10 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ.get('POSTGRES_DB', default='movies'),
-            'USER': os.environ.get('POSTGRES_USER', default='postgres'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', default='123'),
-            'HOST': os.environ.get('POSTGRES_HOST', default='localhost'),
+            'NAME': os.environ.get('POSTGRES_DB'),
+            'USER': os.environ.get('POSTGRES_USER'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+            'HOST': os.environ.get('POSTGRES_HOST'),
             'PORT': "5432"
         }
 }

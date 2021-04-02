@@ -24,8 +24,8 @@ services:
 #      - ./indexer:/app
     depends_on:
       - elasticsearch
-    command: ["python", "ETL_mechanism.py"]
-    tty: true
+#    command: ["python", "ETL_mechanism.py"]
+#    tty: true
     networks:
       flask_and_etl1:
         ipv4_address: 172.28.0.3
