@@ -6,3 +6,5 @@ RUN pip install -r requirements.txt
 USER app_user
 COPY . .
 CMD ["bash"]
+#HEALTHCHECK CMD curl -fsSL "http://127.0.0.1:9200/_cat/health?h=status" | grep -E '^green'
+#CMD [ "python ETL_mechanism.py" ]
