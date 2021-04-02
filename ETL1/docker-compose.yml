@@ -8,6 +8,10 @@ services:
     environment:
       - bootstrap.memory_lock=false
       - discovery.type=single-node
+    networks:
+      flask_and_etl1:
+        ipv4_address: 172.28.0.2
+
 
   indexer:
     build: indexer
@@ -16,3 +20,10 @@ services:
     depends_on:
       - elasticsearch
     tty: true
+    networks:
+      flask_and_etl1:
+        ipv4_address: 172.28.0.3
+
+networks:
+  flask_and_etl1:
+    external: true
