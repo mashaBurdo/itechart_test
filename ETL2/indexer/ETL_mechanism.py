@@ -45,7 +45,7 @@ from etl_modules.backoff_decorator import backoff
 from elasticsearch.exceptions import ConnectionError
 
 
-# @backoff()
+@backoff()
 def connect_elasticrearch(hostname: str):
     try:
         es_obj = Elasticsearch(hosts=[{"host": hostname}], retry_on_timeout=True)
@@ -65,7 +65,7 @@ def connect_elasticrearch(hostname: str):
 ES_OBJ = connect_elasticrearch(ES_HOST)
 
 
-# @backoff()
+@backoff()
 def create_index(es_object=ES_OBJ, index_name=ES_INDEX_NAME):
     created = False
     index = ES_INDEX_SCHEMA
@@ -82,6 +82,16 @@ def create_index(es_object=ES_OBJ, index_name=ES_INDEX_NAME):
         return created
 
 
+@backoff()
+def get_es_film_number(es_object=ES_OBJ, index_name=ES_INDEX_NAME):
+    try:
+        test = es_object.search(index=index_name)
+        size = test['hits']['total']
+        return size['value']
+    except:
+        logging.error("An error occurred while movies counting.", exc_info=True)
+
+
 def get_data_from_pg(query, conn_pg=CONN_PG):
     with conn_pg.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute(query)
@@ -96,14 +106,14 @@ def get_data_from_pg_with_data(query, data, conn_pg=CONN_PG):
         return [dict(row) for row in rows]
 
 
-# @backoff()
+@backoff()
 def get_film_number():
     film_number = get_data_from_pg("SELECT COUNT(*) FROM film_work")
     # print(film_number)
     return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
 
 
-# @backoff()
+@backoff()
 def get_data(limit, ind):
     film_works_data = get_data_from_pg_with_data(
         "SELECT id, rating imdb_rating, title, description FROM film_work LIMIT %(l)s OFFSET %(o)s",
@@ -147,7 +157,7 @@ def get_data(limit, ind):
     return film_works_data
 
 
-# @backoff()
+@backoff()
 def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
     is_stored = True
     try:
@@ -165,7 +175,7 @@ def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
         return is_stored
 
 
-# @backoff()
+@backoff()
 def continue_from_state(initial_state, bulk_number):
     pg_ind = initial_state.get_state("postgres_ind")
     es_ind = initial_state.get_state("elastic_ind")
@@ -190,19 +200,25 @@ if __name__ == "__main__":
     film_number = film_number if film_number else 0
     bulk_number = ceil(film_number / limit)
 
-    initial_state = State()
+    es_film_number = get_es_film_number()
 
-    if not initial_state.state:
+    if es_film_number == 0:
+        logging.info("Beginning data transfer")
         for i in range(bulk_number):
             data = get_data(limit, i)
             store_record(data, i)
-    elif initial_state.get_state("Done"):
-        logging.info("Data were already transferred")
-    else:
+    elif film_number - es_film_number > limit:
+        print(es_film_number, film_number)
+        logging.info("Continuing data transfer")
+        initial_state = State()
         continue_from_state(initial_state, bulk_number)
+    elif es_film_number == film_number:
+        logging.info("Data were already transferred")
+
+
+
 
     final_state = State()
-    logging.info(final_state.state)
+    # logging.info(final_state.state)
     final_state.clear_state()
-    final_state.set_state("Done", True)
-    logging.info(final_state.state)
+    # logging.info(final_state.state)

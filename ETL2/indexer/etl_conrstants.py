@@ -5,12 +5,13 @@ CONN_PG = psycopg2.connect(
     dbname="movies",
     user="postgres",
     password="123",
-    host="db",
+    host="localhost",
+    # host="db",
     port=5432,
 )
 
-ES_HOST = "elasticsearch"
-# ES_HOST = "localhost"
+# ES_HOST = "elasticsearch"
+ES_HOST = "127.0.0.1"
 
 ES_INDEX_NAME = "movies"
 
