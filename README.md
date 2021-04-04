@@ -2,6 +2,7 @@ To start Flask application and ETL1 (transfer data about movies from sqlite to e
 run the following commands. That will run Flask application on port 8000 and elasticsearch on port 9200. 
 If index "movies" wasn't created it will be created. If data about movies
 weren't transferred from sqlite to elasticsearch they will be transferred (indexer_etl1 container).
+Docker-compose contains Elasticsearch, Flask and script for ETL.
 
     docker-compose -f flask-etl1-docker-compose.yml build
     docker-compose -f flask-etl1-docker-compose.yml up
@@ -11,7 +12,7 @@ from sqlite  to postgres run the following commands. That will run Django applic
 postgres on port 5432, redis on port 6379 and nginx on port 80.
 If data about movies weren't transferred from sqlite to postgres they will be transferred (sqlite_to_pg_data_transfer container).
 If data about movies weren't transferred from sqlite to elasticsearch they will be transferred (indexer_etl2 container).
-
+Docker-compose contains Elasticsearch, Redis, Django, Gunicorn, Postgres, Nginx, script for data transfer and script for ETL.
 
     docker-compose -f flask-etl1-docker-compose.yml build
     docker-compose -f flask-etl1-docker-compose.yml up
@@ -30,10 +31,11 @@ Run the following commands.
 
 If you want to run Flask application, ETL1, Django application 
 and data transfer from sqlite  to postgres run the following commands.
+Docker-compose contains Elasticsearch, Redis, Django, Gunicorn, Postgres, Nginx, Flask, script for data transfer and script for ETL (first one).
 
     docker-compose  build
     docker-compose  up
 
 This is a combination of the above commands with several nuances:
 - Flask app will be run on 5000 port
-- ETL2((transfer data about movies from postgres to elasticsearch)) will be skipped
+- ETL2(transfer data about movies from postgres to elasticsearch) will be skipped
