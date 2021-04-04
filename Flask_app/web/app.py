@@ -17,7 +17,7 @@ def el_search(es_object, search, index_name="movies"):
 
 @app.route("/")
 def hello_world():
-    return "Moe Flask приложение в контейнере Docker!!!"
+    return "Moe Flask приложение в контейнере Docker!!!!!!"
 
 
 @app.route("/api/movies/<movie_id>", methods=["GET"])
@@ -25,7 +25,12 @@ def movie_details(movie_id: str) -> str:
     es = Elasticsearch(hosts=[{"host": "elasticsearch"}], retry_on_timeout=True)
     search_query = {"query": {"match": {"id": ""}}}
     search_query["query"]["match"]["id"] = movie_id
-    search_output = el_search(es, json.dumps(search_query))
+
+    try:
+        search_output = el_search(es, json.dumps(search_query))
+    except:
+        abort(404)
+        return
 
     if search_output:
         result = [d["_source"] for d in search_output["hits"]["hits"]][0]
@@ -94,7 +99,12 @@ def movies_list() -> str:
 
     print(search_query)
 
-    search_output = el_search(es, json.dumps(search_query))
+    try:
+        search_output = el_search(es, json.dumps(search_query))
+    except:
+        abort(404)
+        return
+
 
     result = []
     if search_output:
