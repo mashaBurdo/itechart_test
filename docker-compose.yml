@@ -33,14 +33,6 @@ services:
     ports:
       - "6379:6379"
 
-  indexer_etl2:
-    build: ETL2/indexer
-    volumes:
-      - ./ETL2/indexer:/app
-    depends_on:
-      - elasticsearch
-    command: ["python", "ETL_mechanism.py"]
-
   django_gunicorn:
     restart: always
     volumes:
