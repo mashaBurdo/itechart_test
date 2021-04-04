@@ -55,7 +55,7 @@ def connect_elasticrearch(hostname: str):
                 # make sure the cluster is available
                 es_obj.cluster.health(wait_for_status="yellow")
             except ConnectionError:
-                print("Couldn't connect to Elasticsearch")
+                logging.error("Couldn't connect to Elasticsearch", exc_info=True)
                 time.sleep(2)
         return es_obj
     except Exception as e:
@@ -99,8 +99,8 @@ def get_data_from_pg_with_data(query, data, conn_pg=CONN_PG):
 # @backoff()
 def get_film_number():
     film_number = get_data_from_pg("SELECT COUNT(*) FROM film_work")
-    print(film_number)
-    # return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
+    # print(film_number)
+    return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
 
 
 # @backoff()
@@ -202,5 +202,7 @@ if __name__ == "__main__":
         continue_from_state(initial_state, bulk_number)
 
     final_state = State()
+    logging.info(final_state.state)
     final_state.clear_state()
     final_state.set_state("Done", True)
+    logging.info(final_state.state)

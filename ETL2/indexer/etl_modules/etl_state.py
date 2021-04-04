@@ -53,7 +53,7 @@ class JsonFileStorage:
 
 
 class RedisStorage:
-    def __init__(self, redis_adapter=StrictRedis(host=u'localhost', port=6379, db=0)):
+    def __init__(self, redis_adapter=StrictRedis(host='redis', port=6379, db=0)):
         self.redis_adapter = redis_adapter
 
     @backoff()
@@ -85,7 +85,7 @@ class RedisStorage:
 class State:
     """Implements state recovery when app starts, if such state existed"""
 
-    def __init__(self, storage=JsonFileStorage()):
+    def __init__(self, storage=RedisStorage()):
         self.storage = storage
         self.state = self.retrieve_state()
 
