@@ -53,8 +53,7 @@ class JsonFileStorage:
 
 
 class RedisStorage:
-    def __init__(self, redis_adapter=StrictRedis(host='localhost', port=6379, db=0)):
-    # def __init__(self, redis_adapter=StrictRedis(host='redis', port=6379, db=0)):
+    def __init__(self, redis_adapter=StrictRedis(host='redis', port=6379, db=0)):
         self.redis_adapter = redis_adapter
 
     @backoff()

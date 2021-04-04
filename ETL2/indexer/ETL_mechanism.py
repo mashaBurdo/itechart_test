@@ -149,9 +149,7 @@ def get_data(limit, ind):
         genre_data = get_data_from_pg_with_data(genre_query, {"fw": film_work["id"]})
         film_work["genre"] = [g["name"] for g in genre_data]
 
-    last_record = film_works_data
     postgres_state = State()
-    postgres_state.set_state("postgres_last_record", last_record)
     postgres_state.set_state("postgres_ind", ind)
 
     return film_works_data
@@ -163,9 +161,7 @@ def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
     try:
         bulk(elastic_object, record, chunk_size=1000, index=index_name)
 
-        last_record = record
         elastic_state = State()
-        elastic_state.set_state("elastic_last_record", last_record)
         elastic_state.set_state("elastic_ind", ind)
     except Exception as ex:
         print("Error in indexing data")
@@ -176,13 +172,14 @@ def store_record(record, ind, elastic_object=ES_OBJ, index_name=ES_INDEX_NAME):
 
 
 @backoff()
-def continue_from_state(initial_state, bulk_number):
+def continue_from_state(initial_state, bulk_number, limit):
     pg_ind = initial_state.get_state("postgres_ind")
     es_ind = initial_state.get_state("elastic_ind")
 
     if pg_ind != es_ind:
         logging.info("Start with storage data to es")
-        store_record(initial_state.get_state("postgres_last_record"), pg_ind)
+        data = get_data(limit, pg_ind)
+        store_record(data, pg_ind)
     else:
         logging.info("Start from getting fresh data from pg")
 
@@ -206,19 +203,15 @@ if __name__ == "__main__":
         logging.info("Beginning data transfer")
         for i in range(bulk_number):
             data = get_data(limit, i)
+            time.sleep(2)
             store_record(data, i)
     elif film_number - es_film_number > limit:
         print(es_film_number, film_number)
         logging.info("Continuing data transfer")
         initial_state = State()
-        continue_from_state(initial_state, bulk_number)
+        continue_from_state(initial_state, bulk_number, limit)
     elif es_film_number == film_number:
         logging.info("Data were already transferred")
 
-
-
-
     final_state = State()
-    # logging.info(final_state.state)
     final_state.clear_state()
-    # logging.info(final_state.state)
