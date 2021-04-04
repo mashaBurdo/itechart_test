@@ -1,0 +1,104 @@
+version: '3.7'
+
+services:
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.7.0
+    build: ETL2/elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - bootstrap.memory_lock=false
+      - discovery.type=single-node
+
+  redis:
+    container_name: redis
+    image: redis:4.0-alpine
+    command:
+      - 'redis-server'
+      - '--loglevel ${REDIS_LOGLEVEL:-warning}'
+      - '--databases 2'
+      - '--save 900 1'
+      - '--save 300 10'
+      - '--save 60 10000'
+      - '--maxmemory ${REDIS_MAXMEM:-50mb}'
+      - '--maxmemory-policy ${REDIS_POLICY:-noeviction}'
+    volumes:
+      - ./ETL2/redisdata:/redistata
+    ports:
+      - "6379:6379"
+
+  indexer_etl2:
+    build: ETL2/indexer
+    volumes:
+      - ./ETL2/indexer:/app
+    depends_on:
+      - elasticsearch
+    command: ["python", "ETL_mechanism.py"]
+
+  django_gunicorn:
+    restart: always
+    volumes:
+      - ./Django_app/django_project:/app
+      - static:/static
+    build: Django_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - elasticsearch
+      - db
+    environment:
+      DEBUG: 1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: movies
+      POSTGRES_HOST: db
+
+  db:
+    restart: always
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: movies
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    build: ./Django_app/nginx
+    restart: always
+    volumes:
+      - ./Django_app:/code
+      - static:/static
+    ports:
+      - "80:80"
+    depends_on:
+      - django_gunicorn
+      - elasticsearch
+
+  sqlite_to_pg_data_transfer:
+    build: ./Django_app/sqlite_to_pg_data_transfer
+    volumes:
+      - ./Django_app/sqlite_to_pg_data_transfer:/app
+    depends_on:
+      - db
+    command: [ "python", "transfer_data_to_pg.py" ]
+    environment:
+      DEBUG: 1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: movies
+      POSTGRES_HOST: db
+
+volumes:
+  postgres_data:
+  redisdata:
+  code:
+  static:

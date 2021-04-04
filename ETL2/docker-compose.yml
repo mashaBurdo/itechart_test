@@ -14,26 +14,18 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-#    networks:
-#      some_network:
 
   indexer:
     build: indexer
     volumes:
       - ./indexer:/app
     depends_on:
-      elasticsearch:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - elasticsearch
+      - db
     command: ["python", "ETL_mechanism.py"]
-    tty: true
-#    networks:
-#      flask_and_etl1:
-#        ipv4_address: 172.28.0.3
+#    tty: true
 
   db:
-#    restart: always
     image: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
@@ -48,8 +40,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-#    networks:
-#      some_network:
 
   redis:
     container_name: redis
@@ -71,7 +61,3 @@ services:
 volumes:
   postgres_data:
   redisdata:
-
-#networks:
-#  some_network:
-#    driver: bridge

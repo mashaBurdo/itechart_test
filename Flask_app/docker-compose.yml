@@ -8,17 +8,13 @@ services:
     environment:
       - bootstrap.memory_lock=false
       - discovery.type=single-node
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9200" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
-
-  indexer:
-    build: indexer
+  web:
+    build: web
     volumes:
-      - ./indexer:/app
+      - ./web:/app
+    restart: always
+    ports:
+      - "8000:8000"
     depends_on:
       - elasticsearch
-    command: ["python", "ETL_mechanism.py"]

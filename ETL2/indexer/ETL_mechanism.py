@@ -32,6 +32,7 @@
 
 import logging
 from math import ceil
+import time
 
 import psycopg2
 from elasticsearch import Elasticsearch
@@ -41,13 +42,21 @@ from psycopg2.extras import RealDictCursor
 from etl_conrstants import CONN_PG, ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA
 from etl_modules.etl_state import State
 from etl_modules.backoff_decorator import backoff
+from elasticsearch.exceptions import ConnectionError
 
-#
+
 # @backoff()
 def connect_elasticrearch(hostname: str):
     try:
         es_obj = Elasticsearch(hosts=[{"host": hostname}], retry_on_timeout=True)
-        es_obj.cluster.health(wait_for_status="yellow")
+
+        for _ in range(100):
+            try:
+                # make sure the cluster is available
+                es_obj.cluster.health(wait_for_status="yellow")
+            except ConnectionError:
+                print("Couldn't connect to Elasticsearch")
+                time.sleep(2)
         return es_obj
     except Exception as e:
         raise Exception(str(e))
