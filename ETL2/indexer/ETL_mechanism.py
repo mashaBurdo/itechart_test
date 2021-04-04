@@ -108,8 +108,6 @@ def get_data_from_pg_with_data(query, data, conn_pg=CONN_PG):
 
 @backoff()
 def get_film_number():
-    film_number = get_data_from_pg("SELECT COUNT(*) FROM film_work")
-    # print(film_number)
     return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
 
 
@@ -203,10 +201,8 @@ if __name__ == "__main__":
         logging.info("Beginning data transfer")
         for i in range(bulk_number):
             data = get_data(limit, i)
-            time.sleep(2)
             store_record(data, i)
     elif film_number - es_film_number > limit:
-        print(es_film_number, film_number)
         logging.info("Continuing data transfer")
         initial_state = State()
         continue_from_state(initial_state, bulk_number, limit)
