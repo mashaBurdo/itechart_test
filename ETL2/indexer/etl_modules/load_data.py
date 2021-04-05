@@ -25,7 +25,7 @@ def create_index(es_object, index_name=ES_INDEX_NAME):
         return created
 
 
-@backoff()
+# @backoff()
 def store_record(bulk_number, elastic_object, start_ind=0, index_name=ES_INDEX_NAME):
     for ind in range(start_ind, bulk_number):
         record = (yield)
@@ -34,7 +34,7 @@ def store_record(bulk_number, elastic_object, start_ind=0, index_name=ES_INDEX_N
         elastic_state.set_state("elastic_ind", ind)
 
 
-@backoff()
+# @backoff()
 def continue_from_state(initial_state, bulk_number, limit, es):
     pg_ind =initial_state.get_state("postgres_ind") if initial_state.get_state("postgres_ind") else 0
     es_ind = initial_state.get_state("elastic_ind")

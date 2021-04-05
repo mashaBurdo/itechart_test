@@ -13,7 +13,7 @@ from etl_modules.backoff_decorator import backoff
 from elasticsearch.exceptions import ConnectionError
 
 
-@backoff()
+# @backoff()
 def get_es_film_number(es_object, index_name='movies'):
     try:
         test = es_object.search(index=index_name)

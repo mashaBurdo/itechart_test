@@ -65,9 +65,6 @@ if __name__ == "__main__":
             get_data(sender, bulk_number, limit)
         except StopIteration:
             logging.info("StopIteration in data transfer")
-        # for i in range(bulk_number):
-        #     data = get_data(limit, i)
-        #     store_record(data, i, es)
     elif film_number - es_film_number > limit:
         logging.info("Continuing data transfer")
         initial_state = State()
