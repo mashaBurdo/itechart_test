@@ -12,11 +12,12 @@ from etl_modules.etl_state import State
 from etl_modules.backoff_decorator import backoff
 from elasticsearch.exceptions import ConnectionError
 
-from extract_data import (
+from etl_modules.extract_data import (
     get_es_film_number,
     get_data_from_pg,
     get_data_from_pg_with_data,
     get_film_number,
+    get_data,
 )
 
 
