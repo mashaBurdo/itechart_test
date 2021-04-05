@@ -115,15 +115,16 @@ services:
       - "5000:8000"
     depends_on:
       - elasticsearch
-      - indexer_etl2
+      - indexer_etl1
 
-#  indexer_etl1:
-#    build: ETL1/indexer
-#    volumes:
-#      - ./ETL1/indexer:/app
-#    depends_on:
-#      - elasticsearch
+  indexer_etl1:
+    build: ETL1/indexer
+    volumes:
+      - ./ETL1/indexer:/app
+    depends_on:
+      - elasticsearch
 #    command: ["python", "ETL_mechanism.py"]
+    tty: true
 
 volumes:
   postgres_data:
