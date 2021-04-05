@@ -194,8 +194,9 @@ def get_es_film_number(es_object, index_name):
         test = es_object.search(index=index_name)
         size = test['hits']['total']
         return size['value']
-    except:
-        print("An error occurred while movies counting.")
+    except Exception as e:
+        print("An error occurred while movies counting.", e)
+        return 0
 
 
 if __name__ == "__main__":

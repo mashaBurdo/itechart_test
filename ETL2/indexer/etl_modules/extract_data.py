@@ -14,13 +14,14 @@ from elasticsearch.exceptions import ConnectionError
 
 
 @backoff()
-def get_es_film_number(es_object, index_name=ES_INDEX_NAME):
+def get_es_film_number(es_object, index_name='movies'):
     try:
         test = es_object.search(index=index_name)
         size = test["hits"]["total"]
         return size["value"]
-    except:
+    except Exception as e:
         logging.error("An error occurred while movies counting.", exc_info=True)
+        return 0
 
 
 def get_data_from_pg(query, conn_pg=CONN_PG):

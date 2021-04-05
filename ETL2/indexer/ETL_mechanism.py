@@ -55,7 +55,7 @@ if __name__ == "__main__":
     film_number = film_number if film_number else 0
     bulk_number = ceil(film_number / limit)
 
-    es_film_number = get_es_film_number(es)
+    es_film_number = get_es_film_number(es) if get_es_film_number(es) else 0
 
     if es_film_number == 0:
         logging.info("Beginning data transfer")
