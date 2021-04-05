@@ -43,43 +43,46 @@ def get_film_number():
     return get_data_from_pg("SELECT COUNT(*) FROM film_work")[0]["count"]
 
 
-@backoff()
-def get_data(limit, ind):
-    film_works_data = get_data_from_pg_with_data(
-        "SELECT id, rating imdb_rating, title, description FROM film_work LIMIT %(l)s OFFSET %(o)s",
-        {"l": limit, "o": limit * ind},
-    )
+# @backoff()
+def get_data(target, bulk_number, limit, start_ind=0):
+    for ind in range(start_ind, bulk_number):
+        film_works_data = get_data_from_pg_with_data(
+            "SELECT id, rating imdb_rating, title, description FROM film_work LIMIT %(l)s OFFSET %(o)s",
+            {"l": limit, "o": limit * ind},
+        )
 
-    for film_work in film_works_data:
+        for film_work in film_works_data:
 
-        if film_work["imdb_rating"]:
-            film_work["imdb_rating"] = float(film_work["imdb_rating"])
+            if film_work["imdb_rating"]:
+                film_work["imdb_rating"] = float(film_work["imdb_rating"])
 
-        person_query = "SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=%(fw)s"
-        person_data = get_data_from_pg_with_data(person_query, {"fw": film_work["id"]})
-        film_work["actors"] = [
-            {"id": a["id"], "name": a["name"]}
-            for a in person_data
-            if a["role"] == "Actor"
-        ]
-        actors_names = [a["name"] for a in person_data if a["role"] == "Actor"]
-        film_work["actors_names"] = ", ".join(map(str, actors_names))
-        film_work["writers"] = [
-            {"id": a["id"], "name": a["name"]}
-            for a in person_data
-            if a["role"] == "Writer"
-        ]
-        writers_names = [a["name"] for a in person_data if a["role"] == "Writer"]
-        film_work["writers_names"] = ", ".join(map(str, writers_names))
-        film_work["director"] = [
-            a["name"] for a in person_data if a["role"] == "Director"
-        ]
+            person_query = "SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=%(fw)s"
+            person_data = get_data_from_pg_with_data(person_query, {"fw": film_work["id"]})
+            film_work["actors"] = [
+                {"id": a["id"], "name": a["name"]}
+                for a in person_data
+                if a["role"] == "Actor"
+            ]
+            actors_names = [a["name"] for a in person_data if a["role"] == "Actor"]
+            film_work["actors_names"] = ", ".join(map(str, actors_names))
+            film_work["writers"] = [
+                {"id": a["id"], "name": a["name"]}
+                for a in person_data
+                if a["role"] == "Writer"
+            ]
+            writers_names = [a["name"] for a in person_data if a["role"] == "Writer"]
+            film_work["writers_names"] = ", ".join(map(str, writers_names))
+            film_work["director"] = [
+                a["name"] for a in person_data if a["role"] == "Director"
+            ]
 
-        genre_query = "SELECT g.name FROM genre_film_work gf JOIN genre g ON gf.genre_id = g.id WHERE film_work_id=%(fw)s"
-        genre_data = get_data_from_pg_with_data(genre_query, {"fw": film_work["id"]})
-        film_work["genre"] = [g["name"] for g in genre_data]
+            genre_query = "SELECT g.name FROM genre_film_work gf JOIN genre g ON gf.genre_id = g.id WHERE film_work_id=%(fw)s"
+            genre_data = get_data_from_pg_with_data(genre_query, {"fw": film_work["id"]})
+            film_work["genre"] = [g["name"] for g in genre_data]
 
-    postgres_state = State()
-    postgres_state.set_state("postgres_ind", ind)
+        postgres_state = State()
+        postgres_state.set_state("postgres_ind", ind)
 
-    return film_works_data
+        target.send(film_works_data)
+
+

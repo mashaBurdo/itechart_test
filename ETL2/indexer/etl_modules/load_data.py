@@ -26,19 +26,12 @@ def create_index(es_object, index_name=ES_INDEX_NAME):
 
 
 @backoff()
-def store_record(record, ind, elastic_object, index_name=ES_INDEX_NAME):
-    is_stored = True
-    try:
+def store_record(bulk_number, elastic_object, start_ind=0, index_name=ES_INDEX_NAME):
+    for ind in range(start_ind, bulk_number):
+        record = (yield)
         bulk(elastic_object, record, chunk_size=1000, index=index_name)
-
         elastic_state = State()
         elastic_state.set_state("elastic_ind", ind)
-    except Exception as ex:
-        print("Error in indexing data")
-        print(str(ex))
-        is_stored = False
-    finally:
-        return is_stored
 
 
 @backoff()
@@ -47,12 +40,14 @@ def continue_from_state(initial_state, bulk_number, limit, es):
     es_ind = initial_state.get_state("elastic_ind")
 
     if pg_ind != es_ind:
-        logging.info("Start with storage data to es")
-        data = get_data(limit, pg_ind)
-        store_record(data, pg_ind, es)
+        logging.info("Postgres index is NOT equal to elastic index")
     else:
-        logging.info("Start from getting fresh data from pg")
+        logging.info("Postgres index is equal to elastic index")
 
-    for i in range(pg_ind + 1, bulk_number):
-        data = get_data(limit, i)
-        store_record(data, i, es)
+    logging.info("Continue data transfer")
+    sender = store_record(bulk_number, es, pg_ind+1)
+    sender.send(None)
+    try:
+        get_data(sender, bulk_number, limit, pg_ind+1)
+    except StopIteration:
+        logging.info("StopIteration in data transfer")
