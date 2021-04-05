@@ -40,7 +40,6 @@ class JsonFileStorage:
             json.dump(data, file)
             return state
 
-
     def clear_state(self):
         with open(self.file_path, "w") as file:
             data = {}
@@ -49,14 +48,16 @@ class JsonFileStorage:
 
 
 class RedisStorage:
-    def __init__(self, redis_adapter=StrictRedis(host='redis', port=6379, db=0)):
+    def __init__(self, redis_adapter=StrictRedis(host="redis", port=6379, db=0)):
         self.redis_adapter = redis_adapter
 
     def retrieve_state(self):
         try:
             data = self.redis_adapter.hgetall("Storage")
 
-            data = {key.decode('utf-8'): json.loads(value) for key, value in data.items()}
+            data = {
+                key.decode("utf-8"): json.loads(value) for key, value in data.items()
+            }
             if data:
                 return data
             else:
@@ -123,13 +124,13 @@ def test_state():
 def test_redis():
     r = RedisStorage()
     print("REDIS RETRIEVE_STATE before", r.retrieve_state())
-    print("REDIS SAVE_STATE", r.save_state({"lol": ['k', 'e', 'k']}))
+    print("REDIS SAVE_STATE", r.save_state({"lol": ["k", "e", "k"]}))
     print("REDIS RETRIEVE_STATE after", r.retrieve_state())
     print("REDIS CLEAR_STATE", r.clear_state())
     print("REDIS RETRIEVE_STATE cleared", r.retrieve_state())
 
 
 # if __name__ == "__main__":
-    # test_json()
-    # test_state()
-    # test_redis()
+# test_json()
+# test_state()
+# test_redis()
