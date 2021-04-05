@@ -7,7 +7,6 @@
 """
 import json
 from redis import StrictRedis
-from backoff_decorator import backoff
 
 
 FILE_PATH = "state.json"
@@ -19,7 +18,6 @@ class JsonFileStorage:
     def __init__(self, file_path=FILE_PATH):
         self.file_path = file_path
 
-    @backoff()
     def retrieve_state(self):
         with open(self.file_path, "r") as file:
             try:
@@ -28,7 +26,6 @@ class JsonFileStorage:
             except json.JSONDecodeError:
                 return {}
 
-    @backoff()
     def save_state(self, state):
         data = {}
         with open(self.file_path, "r") as file:
@@ -44,7 +41,6 @@ class JsonFileStorage:
             return state
 
 
-    @backoff()
     def clear_state(self):
         with open(self.file_path, "w") as file:
             data = {}
@@ -56,7 +52,6 @@ class RedisStorage:
     def __init__(self, redis_adapter=StrictRedis(host='redis', port=6379, db=0)):
         self.redis_adapter = redis_adapter
 
-    @backoff()
     def retrieve_state(self):
         try:
             data = self.redis_adapter.hgetall("Storage")
@@ -69,14 +64,12 @@ class RedisStorage:
         except:
             return {}
 
-    @backoff()
     def save_state(self, state):
         key, value = list(state.items())[0]
         json_state = json.dumps(value)
         self.redis_adapter.hset("Storage", key, json_state)
         return state
 
-    @backoff()
     def clear_state(self):
         self.redis_adapter.flushdb()
         return {}

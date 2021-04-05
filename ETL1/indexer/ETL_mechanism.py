@@ -189,6 +189,15 @@ def store_movies(es_obj):
         store_record(es_obj, "movies", movie_data)
 
 
+def get_es_film_number(es_object, index_name):
+    try:
+        test = es_object.search(index=index_name)
+        size = test['hits']['total']
+        return size['value']
+    except:
+        print("An error occurred while movies counting.")
+
+
 if __name__ == "__main__":
     # make_db_pretty()
     es = Elasticsearch(hosts=[{"host": "elasticsearch"}], retry_on_timeout=True)
@@ -201,7 +210,11 @@ if __name__ == "__main__":
             time.sleep(2)
     result = create_index(es)
     if result:
-        store_movies(es)
-        print("Movies stored")
+        films = get_es_film_number(es, 'movies')
+        if not films:
+            store_movies(es)
+            print("Movies stored")
+        else:
+            print("Movies not stored")
     else:
         print("Movies not stored")

@@ -44,6 +44,10 @@ services:
     depends_on:
       - elasticsearch
       - db
+      - redis
+      - nginx
+      - sqlite_to_pg_data_transfer
+      - indexer_etl2
     environment:
       DEBUG: 1
       POSTGRES_USER: postgres
@@ -77,7 +81,6 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - django_gunicorn
       - elasticsearch
 
   sqlite_to_pg_data_transfer:
@@ -94,7 +97,15 @@ services:
       POSTGRES_DB: movies
       POSTGRES_HOST: db
 
-  web_flask:
+  indexer_etl2:
+    build: ETL2/indexer
+    volumes:
+      - ./ETL2/indexer:/app
+    depends_on:
+      - elasticsearch
+    command: [ "python", "ETL_mechanism.py" ]
+
+  flask:
     build: ./Flask_app/web
     volumes:
       - ./Flask_app/web:/app
@@ -103,6 +114,7 @@ services:
       - "5000:8000"
     depends_on:
       - elasticsearch
+      - indexer_etl1
 
   indexer_etl1:
     build: ETL1/indexer

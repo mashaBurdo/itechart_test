@@ -39,7 +39,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from psycopg2.extras import RealDictCursor
 
-from etl_conrstants import CONN_PG, ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA
+from etl_modules.etl_conrstants import CONN_PG, ES_HOST, ES_INDEX_NAME, ES_INDEX_SCHEMA
 from etl_modules.etl_state import State
 from etl_modules.backoff_decorator import backoff
 from elasticsearch.exceptions import ConnectionError
