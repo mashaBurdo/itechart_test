@@ -4,6 +4,15 @@ from elasticsearch import Elasticsearch
 from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
                            PersonFilmWork)
 
+from django.db.models.signals import m2m_changed
+
+
+def genres_changed(sender, **kwargs):
+    print(sender)
+
+
+m2m_changed.connect(genres_changed, sender=FilmWork.genres.through)
+
 
 def post_film_work_save(sender, instance, **kwargs):
     record = {

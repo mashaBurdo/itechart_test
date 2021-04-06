@@ -8,7 +8,7 @@ Genre.objects.all()
 class PersonFilmWorkInline(admin.TabularInline):
     model = PersonFilmWork
     extra = 0
-    # readonly_fields = ['person', 'role', 'film_work']
+    readonly_fields = ['person', 'role', 'film_work']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("person")
