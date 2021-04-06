@@ -16,7 +16,7 @@ class PersonFilmWorkInline(admin.TabularInline):
 
 class GenreFilmWorkInline(admin.TabularInline):
     model = GenreFilmWork
-    # readonly_fields = ['genre', ]
+    readonly_fields = ['genre', ]
     extra = 0
 
     def get_queryset(self, request):
