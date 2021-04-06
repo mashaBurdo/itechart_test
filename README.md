@@ -6,7 +6,7 @@ If data about movies weren't transferred from sqlite to elasticsearch they will 
 Django_gunicorn depends on Elasticsearch, Redis, Django, Gunicorn, Postgres, Nginx, script for data transfer and script for ETL.
 
     docker-compose build django_gunicorn
-    docker-compose up django_gunicorn
+    docker-compose up django_gunicorn 
 
 If the following error occurred,
 
@@ -16,12 +16,11 @@ Run the following commands.
 
     docker ps
     docker exec -it <django_gunicorn CONTAINER ID> bash
-    python manage.py makemigrations
     python manage.py migrate
     python manage.py createsuperuser
 
 To start Flask application and ETL1 container(transfer data about movies from sqlite to elasticsearch) 
-run the following command. That will run Flask application on port 8000 and elasticsearch on port 9200. 
+run the following command. That will run Flask application on port 5000 and elasticsearch on port 9200. 
 If index "movies" wasn't created it will be created. If data about movies
 weren't transferred from sqlite to elasticsearch they will be transferred (indexer_etl1 container).
 Flask depends on contains Elasticsearch, Flask and script for ETL.
@@ -41,9 +40,6 @@ Docker-compose contains Elasticsearch, Redis, Django, Gunicorn, Postgres, Nginx,
 
     docker-compose  build
     docker-compose  up
-
-This is a combination of the above commands with one nuance:
-- Flask app will be run on 5000 port
 
 
     

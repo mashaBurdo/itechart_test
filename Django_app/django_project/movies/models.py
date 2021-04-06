@@ -67,8 +67,8 @@ class FilmWork(models.Model):
         _("rating"), validators=[MinValueValidator(0)], null=True, blank=True
     )
     type = models.TextField(_("type"), choices=Type.choices, default=Type.FILM)
-    genres = models.ManyToManyField(Genre, through='GenreFilmWork')
-    persons = models.ManyToManyField(Person, through='PersonFilmWork')
+    genres = models.ManyToManyField(Genre, through="GenreFilmWork")
+    persons = models.ManyToManyField(Person, through="PersonFilmWork")
 
     class Meta:
         # managed = False
@@ -82,9 +82,7 @@ class FilmWork(models.Model):
 
 def post_film_work_save(sender, instance, **kwargs):
     id = instance.id
-    film = (
-        FilmWork.objects.values("id", "title", "description", "rating").get(id=id)
-    )
+    film = FilmWork.objects.values("id", "title", "description", "rating").get(id=id)
     record = {
         "id": id,
         "title": film["title"],
@@ -97,6 +95,7 @@ def post_film_work_save(sender, instance, **kwargs):
     except:
         es_obj = Elasticsearch(hosts=[{"host": "localhost"}], retry_on_timeout=True)
         es_obj.index(index="movies", body=record)
+
 
 post_save.connect(post_film_work_save, FilmWork)
 

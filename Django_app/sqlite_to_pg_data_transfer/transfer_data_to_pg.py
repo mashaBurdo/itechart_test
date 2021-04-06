@@ -13,19 +13,14 @@ CONN_PG = psycopg2.connect(
     user="postgres",
     password="123",
     # host="localhost",
-    host = "db",
+    host="db",
     port=5432,
 )
 
 
 def insert_batch_pg(query, values_list, conn_pg=CONN_PG):
     with conn_pg.cursor() as cur:
-        execute_batch(
-            cur,
-            query,
-            values_list,
-            page_size=5000,
-        )
+        execute_batch(cur, query, values_list, page_size=5000)
         conn_pg.commit()
 
 
@@ -244,7 +239,9 @@ def tests():
 if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
 
-    table_exists = get_data_from_pg("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_name='film_work'")
+    table_exists = get_data_from_pg(
+        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE table_name='film_work'"
+    )
     need_data_transfer = False if table_exists else True
 
     if need_data_transfer:

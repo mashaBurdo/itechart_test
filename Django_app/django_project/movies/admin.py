@@ -1,8 +1,9 @@
 from django.contrib import admin
 
-from movies.models import (FilmWork, Genre, GenreFilmWork, Person,
-                           PersonFilmWork)
+from movies.models import FilmWork, Genre, GenreFilmWork, Person, PersonFilmWork
+
 Genre.objects.all()
+
 
 class PersonFilmWorkInline(admin.TabularInline):
     model = PersonFilmWork
@@ -10,7 +11,7 @@ class PersonFilmWorkInline(admin.TabularInline):
     # readonly_fields = ['person', 'role', 'film_work']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('person',)
+        return super().get_queryset(request).select_related("person")
 
 
 class GenreFilmWorkInline(admin.TabularInline):
@@ -19,7 +20,7 @@ class GenreFilmWorkInline(admin.TabularInline):
     extra = 0
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('genre')
+        return super().get_queryset(request).select_related("genre")
 
 
 @admin.register(FilmWork)

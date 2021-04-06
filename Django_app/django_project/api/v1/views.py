@@ -109,7 +109,8 @@ class MovieByID(BaseListView):
                         default=Value(""),
                         output_field=CharField(),
                     ),
-                ).get(id=film_uuid)
+                )
+                .get(id=film_uuid)
             )
         except Exception as e:
             return {"e": str(e)}

@@ -105,7 +105,6 @@ def movies_list() -> str:
         abort(404)
         return
 
-
     result = []
     if search_output:
         films_data = [d["_source"] for d in search_output["hits"]["hits"]]

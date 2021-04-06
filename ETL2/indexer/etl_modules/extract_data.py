@@ -14,7 +14,7 @@ from elasticsearch.exceptions import ConnectionError
 
 
 # @backoff()
-def get_es_film_number(es_object, index_name='movies'):
+def get_es_film_number(es_object, index_name="movies"):
     try:
         test = es_object.search(index=index_name)
         size = test["hits"]["total"]
@@ -57,7 +57,9 @@ def get_data(target, bulk_number, limit, start_ind=0):
                 film_work["imdb_rating"] = float(film_work["imdb_rating"])
 
             person_query = "SELECT p.id, p.name, pf.role FROM person_film_work pf JOIN person p ON pf.person_id = p.id WHERE film_work_id=%(fw)s"
-            person_data = get_data_from_pg_with_data(person_query, {"fw": film_work["id"]})
+            person_data = get_data_from_pg_with_data(
+                person_query, {"fw": film_work["id"]}
+            )
             film_work["actors"] = [
                 {"id": a["id"], "name": a["name"]}
                 for a in person_data
@@ -77,12 +79,12 @@ def get_data(target, bulk_number, limit, start_ind=0):
             ]
 
             genre_query = "SELECT g.name FROM genre_film_work gf JOIN genre g ON gf.genre_id = g.id WHERE film_work_id=%(fw)s"
-            genre_data = get_data_from_pg_with_data(genre_query, {"fw": film_work["id"]})
+            genre_data = get_data_from_pg_with_data(
+                genre_query, {"fw": film_work["id"]}
+            )
             film_work["genre"] = [g["name"] for g in genre_data]
 
         postgres_state = State()
         postgres_state.set_state("postgres_ind", ind)
 
         target.send(film_works_data)
-
-

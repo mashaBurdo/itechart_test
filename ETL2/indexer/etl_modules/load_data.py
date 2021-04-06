@@ -36,7 +36,11 @@ def store_record(bulk_number, elastic_object, start_ind=0, index_name=ES_INDEX_N
 
 # @backoff()
 def continue_from_state(initial_state, bulk_number, limit, es):
-    pg_ind =initial_state.get_state("postgres_ind") if initial_state.get_state("postgres_ind") else 0
+    pg_ind = (
+        initial_state.get_state("postgres_ind")
+        if initial_state.get_state("postgres_ind")
+        else 0
+    )
     es_ind = initial_state.get_state("elastic_ind")
 
     if pg_ind != es_ind:
@@ -45,9 +49,9 @@ def continue_from_state(initial_state, bulk_number, limit, es):
         logging.info("Postgres index is equal to elastic index")
 
     logging.info("Continue data transfer")
-    sender = store_record(bulk_number, es, pg_ind+1)
+    sender = store_record(bulk_number, es, pg_ind + 1)
     sender.send(None)
     try:
-        get_data(sender, bulk_number, limit, pg_ind+1)
+        get_data(sender, bulk_number, limit, pg_ind + 1)
     except StopIteration:
         logging.info("StopIteration in data transfer")

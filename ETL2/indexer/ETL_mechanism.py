@@ -36,11 +36,7 @@ from math import ceil
 from etl_modules.etl_conrstants import ES_HOST
 from etl_modules.etl_state import State
 
-from etl_modules.extract_data import (
-    get_es_film_number,
-    get_film_number,
-    get_data,
-)
+from etl_modules.extract_data import get_es_film_number, get_film_number, get_data
 from etl_modules.establish_connection_es import connect_elasticrearch
 from etl_modules.load_data import create_index, store_record, continue_from_state
 

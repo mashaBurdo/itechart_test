@@ -18,8 +18,8 @@ import debug_toolbar
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-    path('', include('movies.urls')),
-    path('api/', include('api.urls')),
-    path('__debug__/', include(debug_toolbar.urls)),
+    path("", include("movies.urls")),
+    path("api/", include("api.urls")),
+    path("__debug__/", include(debug_toolbar.urls)),
 ]
 urlpatterns += staticfiles_urlpatterns()

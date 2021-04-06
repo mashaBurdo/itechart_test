@@ -3,6 +3,7 @@ from elasticsearch import Elasticsearch
 import time
 from elasticsearch.exceptions import ConnectionError
 
+
 def create_index(es_object, index_name="movies"):
     settings = {
         "settings": {
@@ -192,8 +193,8 @@ def store_movies(es_obj):
 def get_es_film_number(es_object, index_name):
     try:
         test = es_object.search(index=index_name)
-        size = test['hits']['total']
-        return size['value']
+        size = test["hits"]["total"]
+        return size["value"]
     except Exception as e:
         print("An error occurred while movies counting.", e)
         return 0
@@ -211,7 +212,7 @@ if __name__ == "__main__":
             time.sleep(2)
     result = create_index(es)
     if result:
-        films = get_es_film_number(es, 'movies')
+        films = get_es_film_number(es, "movies")
         if not films:
             store_movies(es)
             print("Movies stored")
@@ -219,4 +220,3 @@ if __name__ == "__main__":
             print("Movies not stored")
     else:
         print("Movies not stored")
-
