@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 from django.db.models import F, Q, Case, Value, When, CharField
 
 
-ES_HOST = 'localhost'
+ES_HOST = 'elasticsearch'
 
 
 def genre_film_work_save(sender, instance, **kwargs):
@@ -31,7 +31,6 @@ def genre_film_work_save(sender, instance, **kwargs):
             }
          }
     }
-    print(query)
     es_obj = Elasticsearch(hosts=[{"host": ES_HOST}], retry_on_timeout=True)
     es_obj.update_by_query(body=query, index='movies')
 
