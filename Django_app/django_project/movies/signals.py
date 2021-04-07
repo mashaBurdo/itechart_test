@@ -97,3 +97,46 @@ def genre_film_work_delete(sender, instance, **kwargs):
 
 
 post_delete.connect(genre_film_work_delete, GenreFilmWork)
+
+
+def person_film_work_signal(sender, instance, **kwargs):
+    film_id = instance.film_work.id
+    result = FilmWork.objects.values("id").annotate(
+            actors=ArrayAgg(
+                "persons__name",
+                distinct=True,
+                filter=Q(personfilmwork__role="Actor"),
+            ),
+            writers=ArrayAgg(
+                "persons__name",
+                distinct=True,
+                filter=Q(personfilmwork__role="Writer"),
+            ),
+            directors=ArrayAgg(
+                "persons__name",
+                distinct=True,
+                filter=Q(personfilmwork__role="Director"),
+            ),
+        ).get(id=film_id)
+    actors = result['actors'] if result['actors'] != [None] else []
+    writers = result['writers'] if result['writers'] != [None] else []
+    actors_names = ', '.join(actors)
+    writers_names = ', '.join(writers)
+    director = result['directors'] if result['directors'] != [None] else []
+    query = {
+         "script": {
+                "inline": "ctx._source.director = params.director; ctx._source.actors_names = params.actors_names; ctx._source.writers_names = params.writers_names;",
+                "lang": "painless",
+                "params": {
+                    "director": director,
+                    "actors_names": actors_names,
+                    "writers_names": writers_names,
+                }
+         }
+    }
+    es_obj = Elasticsearch(hosts=[{"host": ES_HOST}], retry_on_timeout=True)
+    es_obj.update_by_query(body=query, index='movies')
+
+
+post_save.connect(person_film_work_signal, PersonFilmWork)
+pre_delete.connect(person_film_work_signal, PersonFilmWork)

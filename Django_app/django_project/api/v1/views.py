@@ -28,17 +28,17 @@ class Movies(BaseListView):
             actors=ArrayAgg(
                 "persons__name",
                 distinct=True,
-                filter=Q(persons__personfilmwork__role="Actor"),
+                filter=Q(personfilmwork__role="Actor"),
             ),
             writers=ArrayAgg(
                 "persons__name",
                 distinct=True,
-                filter=Q(persons__personfilmwork__role="Writer"),
+                filter=Q(personfilmwork__role="Writer"),
             ),
             directors=ArrayAgg(
                 "persons__name",
                 distinct=True,
-                filter=Q(persons__personfilmwork__role="Director"),
+                filter=Q(personfilmwork__role="Director"),
             ),
             type=Case(
                 When(type="null", then=Value("")),
@@ -92,17 +92,17 @@ class MovieByID(BaseListView):
                     actors=ArrayAgg(
                         "persons__name",
                         distinct=True,
-                        filter=Q(persons__personfilmwork__role="Actor"),
+                        filter=Q(personfilmwork__role="Actor"),
                     ),
                     writers=ArrayAgg(
                         "persons__name",
                         distinct=True,
-                        filter=Q(persons__personfilmwork__role="Writer"),
+                        filter=Q(personfilmwork__role="Writer"),
                     ),
                     directors=ArrayAgg(
                         "persons__name",
                         distinct=True,
-                        filter=Q(persons__personfilmwork__role="Director"),
+                        filter=Q(personfilmwork__role="Director"),
                     ),
                     type=Case(
                         When(type="null", then=Value("")),
